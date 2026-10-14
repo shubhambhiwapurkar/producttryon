@@ -1,0 +1,24 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repository.
+# Fill in the variables marked sync: false when Render asks for them.
+services:
+  - type: web
+    name: producttryon
+    runtime: docker
+    region: singapore        # closest Render region to India
+    plan: starter            # needed for a persistent disk
+    healthCheckPath: /healthz
+    disk:
+      name: data
+      mountPath: /data       # SQLite database, product photos, try-on results
+      sizeGB: 5
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: PLATFORM_ADMIN_KEY
+        generateValue: true  # for POST /api/platform/stores
+      - key: INVITE_CODES    # comma-separated codes jewellers enter in /onboard
+        sync: false
+      - key: GEMINI_API_KEY  # optional: AI renders; without it the composite renderer is used
+        sync: false
+      - key: SEED_DEMO       # loads the "Maison Aurelia" demo store at /s/demo; remove for production
+        value: "1"

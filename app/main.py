@@ -170,6 +170,10 @@ def create_app() -> FastAPI:
 
     # ----- pages -----
 
+    @app.get("/healthz", include_in_schema=False)
+    def healthz():
+        return {"ok": True}
+
     @app.get("/", include_in_schema=False)
     def home():
         return RedirectResponse("/s/demo")

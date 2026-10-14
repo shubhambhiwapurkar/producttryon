@@ -100,6 +100,54 @@ Or create a store from the command line (this prints the admin token):
 Then open `http://localhost:8000/admin/demo`, paste the token, and add or import
 products. Customers use `http://localhost:8000/s/demo`.
 
+## Go live (Render)
+
+The repo includes a `Dockerfile` and a Render Blueprint (`render.yaml`), so it
+runs anywhere Docker runs. Render is the simplest option: it connects to GitHub,
+gives you HTTPS, and redeploys on every push.
+
+1. **Put the code on `main`:** merge the `claude/trusting-sagan-4rvwp1` branch,
+   or pick that branch when Render asks.
+2. **Create the service:** sign in at https://render.com with GitHub. Choose
+   **New → Blueprint** and select this repository. Render reads `render.yaml`
+   and sets up a Docker web service in Singapore (closest to India) with a 5 GB
+   disk for the database and photos.
+3. **Fill in the variables Render asks for:**
+   - `INVITE_CODES`: comma-separated codes you give jewellers for `/onboard`,
+     e.g. `AURELIA2026,SHARMA-JEWELS`
+   - `GEMINI_API_KEY` (optional): turns on AI renders. Without it, earrings and
+     necklaces use the exact-photo compositor.
+
+   `PLATFORM_ADMIN_KEY` is generated for you.
+4. **Apply.** The first build takes about 5 minutes. Your site is then live at
+   `https://<service-name>.onrender.com`:
+   - `/s/demo`: the Maison Aurelia demo boutique
+   - `/admin/demo`: its studio. The admin token is printed in the service's
+     **Logs** at startup.
+   - `/onboard`: sign up a real jeweller with an invite code
+5. **Use your own domain:** in the service, go to **Settings → Custom Domains**
+   and add e.g. `tryon.yourbrand.com`. Then create the CNAME record Render shows
+   at your domain registrar. HTTPS is automatic.
+
+**Cost:** the Starter instance (about $7/month) plus disk storage. Gemini
+renders are billed per image only if you add a key. Check current prices at
+https://render.com/pricing.
+
+**Before onboarding paying clients:**
+- Remove `SEED_DEMO`, or keep the demo store for sales calls.
+- Publish a privacy policy covering customer photos (DPDP Act).
+- Make sure disk backups are on.
+- Add rate limiting before enabling the AI renderer.
+
+The app runs as one instance, because try-ons run in-process and the database
+is SQLite. To scale out, move to Postgres (`DATABASE_URL`), S3/R2 storage and a
+job queue (see PLAN.md).
+
+Other hosts work the same way with the `Dockerfile`:
+- **Railway:** New Project → Deploy from GitHub, then add a volume at `/data`.
+- **Fly.io:** `fly launch`, then add a volume at `/data`. Its Mumbai region
+  (`bom`) is the closest to customers in India.
+
 ## Getting a catalogue
 
 1. **The jeweller's own website (best):** use *Import from your website* in the
