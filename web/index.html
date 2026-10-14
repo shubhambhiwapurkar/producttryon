@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Virtual Try-On</title>
+  <meta name="description" content="See how our jewellery looks on you with a virtual try-on.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4l26 22-12 34H18L6 26z' fill='%23b08d57'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1 class="brand" id="store-name">&nbsp;</h1>
+      <div class="tagline">Virtual try-on</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="page-error" class="msg msg-error" role="alert" hidden></div>
+
+    <div class="tabs" role="tablist" aria-label="Choose how to try on">
+      <button class="tab" role="tab" id="tab-shop" aria-controls="panel-shop" aria-selected="true" type="button">Shop the collection</button>
+      <button class="tab" role="tab" id="tab-own" aria-controls="panel-own" aria-selected="false" tabindex="-1" type="button">Try your own piece</button>
+    </div>
+
+    <!-- Collection -->
+    <section id="panel-shop" role="tabpanel" aria-labelledby="tab-shop">
+      <div class="toolbar">
+        <div class="field" style="margin:0">
+          <label for="search" class="sr-only">Search products</label>
+          <input type="search" id="search" placeholder="Search the collection" autocomplete="off">
+        </div>
+        <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+      </div>
+      <div id="grid-status" class="sr-only" aria-live="polite"></div>
+      <div class="product-grid" id="grid"></div>
+      <div class="empty" id="empty" hidden>
+        <div class="icon" aria-hidden="true">&#9671;</div>
+        <p id="empty-text">No products yet. Please check back soon.</p>
+      </div>
+    </section>
+
+    <!-- Own piece -->
+    <section id="panel-own" role="tabpanel" aria-labelledby="tab-own" hidden>
+      <p class="section-intro">Got a piece you are thinking of buying, or one you already own? Upload photos of it and see it on you.</p>
+      <div class="card">
+        <h2>1. Photos of the piece</h2>
+        <p class="hint">Up to 4 photos. Plain background, whole piece in frame.</p>
+        <input type="file" id="own-files" accept="image/*" multiple hidden>
+        <div class="thumb-list" id="own-thumbs" aria-live="polite"></div>
+        <button type="button" class="btn" id="own-add">Add photos</button>
+
+        <h2 style="margin-top:22px"><label for="own-category">2. What kind of jewellery is it?</label></h2>
+        <select id="own-category"></select>
+
+        <div id="own-error" class="msg msg-error" role="alert" hidden></div>
+        <div style="margin-top:20px">
+          <button type="button" class="btn btn-primary btn-lg" id="own-continue">Continue</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer container">AI preview &mdash; the actual piece may vary slightly.</footer>
+
+  <!-- Sheet -->
+  <div class="overlay" id="overlay" hidden>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet-head">
+        <h2 id="sheet-title">Details</h2>
+        <button type="button" class="icon-btn" id="sheet-close" aria-label="Close">&times;</button>
+      </div>
+
+      <!-- Product detail -->
+      <section id="view-detail" hidden>
+        <div class="gallery-main"><img id="gallery-main" alt=""></div>
+        <div class="gallery-thumbs" id="gallery-thumbs"></div>
+        <div class="detail-price" id="detail-price"></div>
+        <p id="detail-desc"></p>
+        <dl class="detail-meta" id="detail-meta"></dl>
+        <p><a id="detail-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View on the store website &#8599;</a></p>
+        <button type="button" class="btn btn-primary btn-lg" id="detail-try">Try it on</button>
+      </section>
+
+      <!-- Selfie -->
+      <section id="view-selfie" hidden>
+        <div class="tip-box" id="selfie-tip"></div>
+        <input type="file" id="selfie-camera" accept="image/*" capture="user" hidden>
+        <input type="file" id="selfie-gallery" accept="image/*" hidden>
+        <div class="btn-row">
+          <button type="button" class="btn" id="selfie-take">Take a selfie</button>
+          <button type="button" class="btn" id="selfie-choose">Choose from gallery</button>
+        </div>
+        <div class="photo-preview" id="selfie-preview" hidden><img id="selfie-img" alt="Preview of your selected photo"></div>
+        <div class="check" style="margin:16px 0">
+          <input type="checkbox" id="consent">
+          <label for="consent">I agree my photo is processed to create this preview and deleted automatically within 7 days.</label>
+        </div>
+        <div id="selfie-error" class="msg msg-error" role="alert" hidden></div>
+        <div class="stack">
+          <button type="button" class="btn btn-primary btn-lg" id="selfie-submit">Create my preview</button>
+          <button type="button" class="btn btn-ghost" id="selfie-back">Back</button>
+        </div>
+      </section>
+
+      <!-- Progress -->
+      <section id="view-progress" hidden>
+        <div class="progress">
+          <div class="gem" aria-hidden="true"></div>
+          <div class="progress-msg" id="progress-msg" role="status" aria-live="polite">Uploading your photo&hellip;</div>
+          <div class="progress-bar" aria-hidden="true"></div>
+          <p class="hint" style="margin-top:18px">This usually takes 10&ndash;40 seconds. Please keep this page open.</p>
+        </div>
+      </section>
+
+      <!-- Result -->
+      <section id="view-result" hidden>
+        <div class="compare" id="compare">
+          <img id="compare-after" alt="You wearing the jewellery (after)">
+          <div class="before-wrap"><img id="compare-before" alt="Your original photo (before)"></div>
+          <div class="divider" aria-hidden="true"></div>
+          <button type="button" class="handle" id="compare-handle" role="slider" aria-label="Compare before and after" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">&#8596;</button>
+          <span class="tag left">Before</span><span class="tag right">After</span>
+        </div>
+        <p class="note">AI preview &mdash; the actual piece may vary slightly.</p>
+        <div class="msg msg-info" id="demo-note" hidden>Demo mode: no AI model connected</div>
+        <div class="stack">
+          <a class="btn btn-primary" id="result-download" href="#" download="tryon.jpg">Download</a>
+          <a class="btn btn-wa" id="result-wa" href="#" target="_blank" rel="noopener noreferrer" hidden>Ask about this on WhatsApp</a>
+          <button type="button" class="btn" id="result-again">Try another photo</button>
+          <button type="button" class="btn btn-ghost" id="result-back">Back to collection</button>
+        </div>
+      </section>
+
+      <!-- Failed -->
+      <section id="view-failed" hidden>
+        <div class="msg msg-error" role="alert" id="failed-msg">Something went wrong.</div>
+        <div class="stack">
+          <button type="button" class="btn btn-primary" id="failed-retry">Try again</button>
+          <button type="button" class="btn btn-ghost" id="failed-close">Close</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/static/shop.js"></script>
+</body>
+</html>
