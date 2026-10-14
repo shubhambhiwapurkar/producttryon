@@ -74,6 +74,8 @@
         <button type="button" class="icon-btn" id="sheet-close" aria-label="Close">&times;</button>
       </div>
 
+      <nav id="try-stepper" aria-label="Try-on progress"></nav>
+
       <!-- Product detail -->
       <section id="view-detail" hidden>
         <div class="gallery-main"><img id="gallery-main" alt=""></div>
@@ -108,23 +110,12 @@
 
       <!-- Progress -->
       <section id="view-progress" hidden>
-        <div class="progress">
-          <div class="gem" aria-hidden="true"></div>
-          <div class="progress-msg" id="progress-msg" role="status" aria-live="polite">Uploading your photo&hellip;</div>
-          <div class="progress-bar" aria-hidden="true"></div>
-          <p class="hint" style="margin-top:18px">This usually takes 10&ndash;40 seconds. Please keep this page open.</p>
-        </div>
+        <div id="progress-slot"></div>
       </section>
 
       <!-- Result -->
       <section id="view-result" hidden>
-        <div class="compare" id="compare">
-          <img id="compare-after" alt="You wearing the jewellery (after)">
-          <div class="before-wrap"><img id="compare-before" alt="Your original photo (before)"></div>
-          <div class="divider" aria-hidden="true"></div>
-          <button type="button" class="handle" id="compare-handle" role="slider" aria-label="Compare before and after" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">&#8596;</button>
-          <span class="tag left">Before</span><span class="tag right">After</span>
-        </div>
+        <div id="compare-slot"></div>
         <p class="note">AI preview &mdash; the actual piece may vary slightly.</p>
         <div class="msg msg-info" id="demo-note" hidden>Demo mode: no AI model connected</div>
         <div class="stack">
@@ -146,6 +137,6 @@
     </div>
   </div>
 
-  <script src="/static/shop.js"></script>
+  <script type="module" src="/static/shop.js"></script>
 </body>
 </html>

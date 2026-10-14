@@ -40,6 +40,11 @@
     <main class="container narrow">
       <div id="page-error" class="msg msg-error" role="alert" hidden></div>
 
+      <div class="banner" id="setup-banner" hidden>
+        <div><strong>Finish setting up your store</strong><br><span class="hint">Add your first products so customers can try them on.</span></div>
+        <a class="btn btn-primary btn-sm" id="setup-link" href="/onboard">Continue setup</a>
+      </div>
+
       <!-- Settings -->
       <section class="card" aria-labelledby="h-settings">
         <h2 id="h-settings">Store settings</h2>
@@ -155,6 +160,6 @@
     </main>
   </div>
 
-  <script src="/static/admin.js"></script>
+  <script type="module" src="/static/admin.js"></script>
 </body>
 </html>
