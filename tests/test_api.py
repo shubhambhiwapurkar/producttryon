@@ -171,3 +171,8 @@ def test_update_product_category(client, store):
 def test_store_qr(client, store):
     resp = client.get("/api/stores/demo/qr.png")
     assert resp.status_code == 200 and resp.headers["content-type"] == "image/png"
+
+
+def test_clearing_store_fields_stores_null(client, store):
+    resp = client.patch("/api/stores/demo", json={"whatsapp_number": "  ", "website_url": ""}, headers=admin(store))
+    assert resp.json()["whatsapp_number"] is None and resp.json()["website_url"] is None

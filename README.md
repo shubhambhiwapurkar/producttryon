@@ -52,11 +52,15 @@ GEMINI_API_KEY=your-key .venv/bin/uvicorn app.main:app --reload
 To use the other settings in `.env.example`, copy it to `.env`, fill it in, and
 load it with `set -a; . ./.env; set +a` before starting the app.
 
-### Screenshots (demo mode)
+### Screenshots (demo mode, placeholder jewellery)
 
-| Collection | Product | Your photo | Result |
-|---|---|---|---|
-| ![](docs/screenshots/1-shop-collection-mobile.png) | ![](docs/screenshots/2-product-detail-mobile.png) | ![](docs/screenshots/3-upload-photo-mobile.png) | ![](docs/screenshots/4-result-mobile.png) |
+| Storefront | Product | Try-on result |
+|---|---|---|
+| ![](docs/screenshots/shop-desktop-1-home.png) | ![](docs/screenshots/shop-desktop-3-panel.png) | ![](docs/screenshots/shop-mobile-7-result.png) |
+
+| Onboarding wizard | Go live | Studio |
+|---|---|---|
+| ![](docs/screenshots/onboard-d-1a-boutique.png) | ![](docs/screenshots/onboard-d-5a-live.png) | ![](docs/screenshots/studio-d-3-collection.png) |
 
 **Onboard a jeweller with the wizard:** open `http://localhost:8000/onboard`. It
 walks through five steps: store details → add products (import from their

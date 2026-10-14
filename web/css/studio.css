@@ -187,7 +187,7 @@
 .ob-head { margin-bottom: var(--space-7); }
 .ob-title { margin-top: var(--space-3); font-size: clamp(38px, 6vw, 56px); }
 .ob-title:focus { outline: none; }
-.ob-title, .lede { text-wrap: balance; }
+.ob-title, .live-head .lede { text-wrap: balance; }
 .ob-head .lede { margin: var(--space-4) 0 0; }
 .ob-head .lede { max-width: 50ch; }
 
@@ -296,12 +296,14 @@
 
 .shell { min-height: 100vh; }
 .sidebar {
-  position: sticky; top: 0; z-index: 40; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "head foot" "nav nav";
+  position: sticky; top: 0; z-index: 40; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "eyebrow foot" "brand brand" "nav nav";
   align-items: start; gap: 0 var(--space-4); padding: var(--space-4) var(--gutter) 0; background: var(--paper); border-bottom: 1px solid var(--line);
 }
-.side-head { grid-area: head; display: grid; gap: var(--space-1); min-width: 0; }
-.sidebar .wordmark { font-size: 17px; letter-spacing: 0.2em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.side-foot { grid-area: foot; display: flex; gap: var(--space-4); align-items: center; padding-top: 2px; }
+.side-head { display: contents; }
+.side-head .eyebrow { grid-area: eyebrow; }
+.sidebar .wordmark { grid-area: brand; margin-top: var(--space-1); }
+.sidebar .wordmark { font-size: 19px; letter-spacing: 0.14em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-foot { grid-area: foot; display: flex; gap: var(--space-4); align-items: center; }
 .side-foot a, .side-foot button {
   padding: 0; font: 400 10px/1.4 var(--font-sans); letter-spacing: var(--track); text-transform: uppercase; color: var(--muted); background: none; border: 0; cursor: pointer; transition: color .25s;
 }
@@ -324,12 +326,15 @@
 .measure { max-width: 560px; }
 
 @media (min-width: 900px) {
-  .shell { display: grid; grid-template-columns: 272px minmax(0, 1fr); }
+  /* Paint the sidebar column on the shell too, so it runs the full height of long pages. */
+  .shell { display: grid; grid-template-columns: 272px minmax(0, 1fr); background: linear-gradient(to right, var(--paper) 271px, var(--line) 271px 272px, transparent 272px); }
   .sidebar {
     display: flex; flex-direction: column; align-items: stretch; height: 100vh; padding: var(--space-7) var(--space-6) var(--space-6);
     border-bottom: 0; border-right: 1px solid var(--line);
   }
-  .side-head { gap: var(--space-3); padding-bottom: var(--space-5); border-bottom: 1px solid var(--line); }
+  .side-head { display: grid; gap: var(--space-3); padding-bottom: var(--space-5); border-bottom: 1px solid var(--line); }
+  .sidebar .wordmark { grid-area: auto; margin-top: 0; }
+  .side-head .eyebrow { grid-area: auto; }
   .sidebar .wordmark { font-size: 20px; white-space: normal; letter-spacing: 0.16em; line-height: 1.35; }
   .nav { flex-direction: column; gap: 2px; margin: var(--space-6) 0 0; padding: 0; overflow: visible; }
   .nav a { padding: 11px 0 11px var(--space-4); border-bottom: 0; border-left: 1px solid transparent; font-size: 11.5px; }

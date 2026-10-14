@@ -269,7 +269,7 @@ def create_app() -> FastAPI:
     @app.patch("/api/stores/{slug}")
     def update_store(body: StoreUpdate, store: AdminStore, session: SessionDep):
         for key, value in body.model_dump(exclude_unset=True).items():
-            setattr(store, key, value)
+            setattr(store, key, value.strip() or None if isinstance(value, str) and key != "name" else value)
         session.commit()
         return store_out(store, session)
 
