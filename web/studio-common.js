@@ -291,7 +291,7 @@ export function buildImporter({ call, base, defaultUrl = "", onDone = () => {}, 
   const btn = h("button", { type: "submit", class: "btn btn-primary", text: "Import pieces" });
 
   const say = (text) => { err.textContent = text; err.className = text ? "msg msg-error" : ""; err.hidden = !text; };
-  const fact = (label, value, accent) => h("div", { class: `fact${accent ? " fact-accent" : ""}` }, h("span", { class: "fact-num", text: String(value) }), h("span", { class: "eyebrow", text: label }));
+  const fact = (label, value, accent) => h("div", { class: `fact${accent ? (value > 0 ? " fact-accent" : " fact-zero") : ""}` }, h("span", { class: "fact-num", text: String(value) }), h("span", { class: "eyebrow", text: label }));
 
   const form = h("form", { class: "importer", novalidate: true },
     h("div", { class: "field-row importer-row" },
