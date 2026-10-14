@@ -87,7 +87,13 @@ products. Customers use `http://localhost:8000/s/demo`.
    kada, haar, payal, nath and maang tikka. Only import from sites the client
    owns or has permission to use.
 2. **The admin upload form**, for products not online yet.
-3. **An open dataset for demos**, while there is no client. Download one, for example:
+3. **Real stock photos for demos:** `python -m scripts.fetch_demo_photos photos/`
+   downloads jewellery and model photos whose licences allow commercial use.
+   It uses Pexels when `PEXELS_API_KEY` is set (free key at pexels.com/api) and
+   Openverse otherwise (no key needed, Creative Commons photos, credits saved).
+   Then load them with `python -m scripts.seed_from_folder photos --store demo --create "Demo Jewellers"`.
+   Don't use Google Images results: they are copyrighted.
+4. **An open dataset for demos**, while there is no client. Download one, for example:
    - [sidd707/jewelry-design-dataset](https://huggingface.co/datasets/sidd707/jewelry-design-dataset): about 6.1k images (necklace, earring, bracelet, ring), MIT
    - [bzcasper/ai-tool-pool-jewelry-vision](https://huggingface.co/datasets/bzcasper/ai-tool-pool-jewelry-vision): about 5.1k images in 5 categories, CC BY 4.0
    - [Tanishq Jewellery Dataset (Kaggle)](https://www.kaggle.com/datasets/sapnilpatel/tanishq-jewellery-dataset): rings and necklaces, MIT
