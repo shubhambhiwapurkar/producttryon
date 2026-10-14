@@ -16,18 +16,47 @@ AI render, watermark, and the result with "Ask on WhatsApp".
 
 See [PLAN.md](PLAN.md) for the product plan, competitors and roadmap.
 
-## Run it
+## Run it on your computer
+
+You need Python 3.11 or newer.
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-cp .env.example .env              # add GEMINI_API_KEY for real renders
-set -a; . ./.env; set +a
-.venv/bin/uvicorn app.main:app --reload
+git clone https://github.com/shubhambhiwapurkar/producttryon.git
+cd producttryon
+git checkout claude/trusting-sagan-4rvwp1
+
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt     # Windows: .venv\Scripts\pip install -r requirements.txt
+
+.venv/bin/python -m scripts.demo              # creates a demo store and prints its admin token
+.venv/bin/uvicorn app.main:app --reload       # starts the website on http://localhost:8000
 ```
 
-Without `GEMINI_API_KEY` the app uses the **mock renderer**, which pastes the
-product photo onto the selfie (no AI). It is labelled "MOCK RENDER" so it is
-never mistaken for a real result. Use it to try the flow end to end.
+Then open:
+
+- **http://localhost:8000/s/demo**: the customer page. Pick a piece, press
+  "Try it on" and upload any photo of a person; `data/demo-selfie.png` is a
+  sample.
+- **http://localhost:8000/admin/demo**: the jeweller's page. Paste the admin
+  token that `scripts.demo` printed.
+
+**Demo mode vs real AI:** without an API key the app runs in demo mode. It
+pastes the product photo onto the person and shows "Demo mode: no AI model
+connected". For real try-ons, get a Gemini API key from
+https://aistudio.google.com/apikey and start the app like this:
+
+```bash
+GEMINI_API_KEY=your-key .venv/bin/uvicorn app.main:app --reload
+```
+
+To use the other settings in `.env.example`, copy it to `.env`, fill it in, and
+load it with `set -a; . ./.env; set +a` before starting the app.
+
+### Screenshots (demo mode)
+
+| Collection | Product | Your photo | Result |
+|---|---|---|---|
+| ![](docs/screenshots/1-shop-collection-mobile.png) | ![](docs/screenshots/2-product-detail-mobile.png) | ![](docs/screenshots/3-upload-photo-mobile.png) | ![](docs/screenshots/4-result-mobile.png) |
 
 **Onboard a jeweller with the wizard:** open `http://localhost:8000/onboard`. It
 walks through five steps: store details → add products (import from their
