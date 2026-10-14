@@ -4,136 +4,241 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Virtual Try-On</title>
-  <meta name="description" content="See how our jewellery looks on you with a virtual try-on.">
-  <meta name="color-scheme" content="light dark">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4l26 22-12 34H18L6 26z' fill='%23b08d57'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap">
-  <link rel="stylesheet" href="/static/styles.css">
+  <meta name="description" content="See how our jewellery looks on you with a complimentary virtual try-on.">
+  <meta name="theme-color" content="#fbf8f3">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 8l22 18-22 30L10 26z' fill='none' stroke='%23a88b5c' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/shop.css">
 </head>
-<body>
-  <header class="site-header">
-    <div class="container">
-      <h1 class="brand" id="store-name">&nbsp;</h1>
-      <div class="tagline">Virtual try-on</div>
+<body class="shop">
+  <a class="skip-link" href="#collection">Skip to the collection</a>
+
+  <div class="announce" data-page>
+    <p>Complimentary virtual try-on<span class="announce-wa" id="announce-wa-wrap" hidden> <span aria-hidden="true">&middot;</span> <a id="announce-wa" href="#" target="_blank" rel="noopener noreferrer">Enquire on WhatsApp</a></span></p>
+  </div>
+
+  <header class="site-header" id="top" data-page>
+    <div class="header-bar">
+      <nav class="hdr-nav hdr-left" aria-label="Collection">
+        <a href="#collection" id="nav-collection">Collection</a>
+      </nav>
+      <a class="wordmark" id="store-name" href="#top">&nbsp;</a>
+      <nav class="hdr-nav hdr-right" aria-label="Try your own piece">
+        <button type="button" id="nav-own"><span class="long">Try your own piece</span><span class="short">Your piece</span></button>
+      </nav>
     </div>
   </header>
 
-  <main class="container">
-    <div id="page-error" class="msg msg-error" role="alert" hidden></div>
+  <main id="main" data-page>
+    <div class="container"><div id="page-error" role="alert" hidden></div></div>
 
-    <div class="tabs" role="tablist" aria-label="Choose how to try on">
-      <button class="tab" role="tab" id="tab-shop" aria-controls="panel-shop" aria-selected="true" type="button">Shop the collection</button>
-      <button class="tab" role="tab" id="tab-own" aria-controls="panel-own" aria-selected="false" tabindex="-1" type="button">Try your own piece</button>
-    </div>
+    <!-- Hero -->
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow fade-in">Virtual try-on</p>
+          <h1 class="display hero-title fade-in" id="hero-title" style="animation-delay:80ms">See it on you, <em>before</em> it&rsquo;s yours.</h1>
+          <p class="lede fade-in" style="animation-delay:160ms">Choose a piece you love, add a photo of yourself, and see how it looks on you &mdash; in moments, from wherever you are.</p>
+          <div class="hero-cta fade-in" style="animation-delay:240ms">
+            <a class="btn btn-primary" href="#collection">Discover the collection</a>
+            <button type="button" class="btn" id="hero-own">Try your own piece</button>
+          </div>
+        </div>
+        <div class="hero-visual fade-in" id="hero-visual" style="animation-delay:200ms"></div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="how" aria-labelledby="how-title">
+      <h2 class="sr-only" id="how-title">How it works</h2>
+      <ol class="container how-list">
+        <li><span class="how-num" aria-hidden="true">01</span><h3>Choose a piece</h3><p>Browse the collection and open any piece that catches your eye.</p></li>
+        <li><span class="how-num" aria-hidden="true">02</span><h3>Add your photo</h3><p>Take a photo or choose one from your library. It stays private.</p></li>
+        <li><span class="how-num" aria-hidden="true">03</span><h3>See your look</h3><p>Slide between before and after, then save it or share it with us.</p></li>
+      </ol>
+    </section>
 
     <!-- Collection -->
-    <section id="panel-shop" role="tabpanel" aria-labelledby="tab-shop">
-      <div class="toolbar">
-        <div class="field" style="margin:0">
-          <label for="search" class="sr-only">Search products</label>
-          <input type="search" id="search" placeholder="Search the collection" autocomplete="off">
+    <section class="collection" id="collection" aria-labelledby="collection-title">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">Discover</p>
+          <h2 id="collection-title">The collection</h2>
+          <div class="ornament"></div>
+        </header>
+
+        <div class="coll-bar">
+          <nav class="cat-tabs" id="cat-tabs" aria-label="Filter by category" hidden></nav>
+          <div class="search">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><circle cx="6.8" cy="6.8" r="5"/><path d="M10.5 10.5L15 15" stroke-linecap="round"/></svg>
+            <label for="search" class="sr-only">Search the collection</label>
+            <input type="search" id="search" placeholder="Search the collection" autocomplete="off">
+          </div>
         </div>
-        <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
-      </div>
-      <div id="grid-status" class="sr-only" aria-live="polite"></div>
-      <div class="product-grid" id="grid"></div>
-      <div class="empty" id="empty" hidden>
-        <div class="icon" aria-hidden="true">&#9671;</div>
-        <p id="empty-text">No products yet. Please check back soon.</p>
+
+        <p id="grid-status" class="sr-only" role="status" aria-live="polite"></p>
+        <div class="grid" id="grid" aria-busy="true"></div>
+
+        <div class="empty" id="empty" hidden>
+          <svg class="empty-gem" width="56" height="56" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" aria-hidden="true"><path d="M16 8h24l10 12-22 28L6 20z"/><path d="M6 20h44M20 20l8 28 8-28M16 8l4 12 8-12 8 12 4-12"/></svg>
+          <h3 id="empty-title">The collection is being curated</h3>
+          <p id="empty-text">New pieces will appear here soon.</p>
+          <button type="button" class="btn" id="empty-action">Try your own piece</button>
+        </div>
       </div>
     </section>
 
     <!-- Own piece -->
-    <section id="panel-own" role="tabpanel" aria-labelledby="tab-own" hidden>
-      <p class="section-intro">Got a piece you are thinking of buying, or one you already own? Upload photos of it and see it on you.</p>
-      <div class="card">
-        <h2>1. Photos of the piece</h2>
-        <p class="hint">Up to 4 photos. Plain background, whole piece in frame.</p>
-        <input type="file" id="own-files" accept="image/*" multiple hidden>
-        <div class="thumb-list" id="own-thumbs" aria-live="polite"></div>
-        <button type="button" class="btn" id="own-add">Add photos</button>
-
-        <h2 style="margin-top:22px"><label for="own-category">2. What kind of jewellery is it?</label></h2>
-        <select id="own-category"></select>
-
-        <div id="own-error" class="msg msg-error" role="alert" hidden></div>
-        <div style="margin-top:20px">
-          <button type="button" class="btn btn-primary btn-lg" id="own-continue">Continue</button>
+    <section class="own" id="own" aria-labelledby="own-title">
+      <div class="container own-grid">
+        <div class="own-copy">
+          <p class="eyebrow">Your own piece</p>
+          <h2 id="own-title">Try a piece <em>you already love</em></h2>
+          <div class="ornament left"></div>
+          <p class="lede">Thinking of buying something, or curious how a piece you own looks on you? Add photos of it and see it on you.</p>
+        </div>
+        <div class="own-card">
+          <div id="own-stepper" class="panel-stepper" aria-label="Progress"></div>
+          <h3 class="step-title">Your piece</h3>
+          <input type="file" id="own-files" accept="image/*" multiple hidden>
+          <div class="dropzone" id="own-drop">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" aria-hidden="true"><path d="M20 8v24M8 20h24"/></svg>
+            <p class="drop-title">Add up to 4 photos of the piece</p>
+            <p class="hint">Plain background, whole piece in frame.<span class="drop-desktop"> Drag and drop here, or</span></p>
+            <button type="button" class="btn btn-sm" id="own-add">Choose photos</button>
+          </div>
+          <ul class="thumbs" id="own-thumbs" aria-label="Your photos of the piece"></ul>
+          <div class="field">
+            <label for="own-category">Type of jewellery</label>
+            <select id="own-category"></select>
+          </div>
+          <div id="own-error" role="alert" hidden></div>
+          <button type="button" class="btn btn-primary btn-block" id="own-continue">Continue</button>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer container">AI preview &mdash; the actual piece may vary slightly.</footer>
+  <footer class="site-footer" data-page>
+    <div class="container foot-inner">
+      <a class="wordmark foot-mark" id="foot-name" href="#top">&nbsp;</a>
+      <div class="ornament"></div>
+      <p class="foot-line">Photos are used only to create your preview and are deleted within 7 days.</p>
+      <p class="foot-links"><a class="link" id="foot-wa" href="#" target="_blank" rel="noopener noreferrer" hidden>Enquire on WhatsApp</a><a class="link" id="foot-site" href="#" target="_blank" rel="noopener noreferrer" hidden>Visit our website</a></p>
+      <p class="foot-credit">Virtual try-on by Atelier</p>
+    </div>
+  </footer>
 
-  <!-- Sheet -->
+  <!-- Product + try-on panel -->
   <div class="overlay" id="overlay" hidden>
-    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-      <div class="sheet-head">
-        <h2 id="sheet-title">Details</h2>
-        <button type="button" class="icon-btn" id="sheet-close" aria-label="Close">&times;</button>
-      </div>
+    <div class="panel" id="panel" role="dialog" aria-modal="true" aria-label="Piece details" tabindex="-1" data-view="detail">
+      <button type="button" class="panel-close" id="panel-close" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" aria-hidden="true"><path d="M2 2l14 14M16 2L2 16"/></svg>
+      </button>
 
-      <nav id="try-stepper" aria-label="Try-on progress"></nav>
-
-      <!-- Product detail -->
-      <section id="view-detail" hidden>
+      <div class="panel-aside" id="panel-aside">
         <div class="gallery-main"><img id="gallery-main" alt=""></div>
         <div class="gallery-thumbs" id="gallery-thumbs"></div>
-        <div class="detail-price" id="detail-price"></div>
-        <p id="detail-desc"></p>
-        <dl class="detail-meta" id="detail-meta"></dl>
-        <p><a id="detail-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View on the store website &#8599;</a></p>
-        <button type="button" class="btn btn-primary btn-lg" id="detail-try">Try it on</button>
-      </section>
+        <p class="aside-cap" id="aside-cap" hidden></p>
+      </div>
 
-      <!-- Selfie -->
-      <section id="view-selfie" hidden>
-        <div class="tip-box" id="selfie-tip"></div>
-        <input type="file" id="selfie-camera" accept="image/*" capture="user" hidden>
-        <input type="file" id="selfie-gallery" accept="image/*" hidden>
-        <div class="btn-row">
-          <button type="button" class="btn" id="selfie-take">Take a selfie</button>
-          <button type="button" class="btn" id="selfie-choose">Choose from gallery</button>
-        </div>
-        <div class="photo-preview" id="selfie-preview" hidden><img id="selfie-img" alt="Preview of your selected photo"></div>
-        <div class="check" style="margin:16px 0">
-          <input type="checkbox" id="consent">
-          <label for="consent">I agree my photo is processed to create this preview and deleted automatically within 7 days.</label>
-        </div>
-        <div id="selfie-error" class="msg msg-error" role="alert" hidden></div>
-        <div class="stack">
-          <button type="button" class="btn btn-primary btn-lg" id="selfie-submit">Create my preview</button>
-          <button type="button" class="btn btn-ghost" id="selfie-back">Back</button>
-        </div>
-      </section>
+      <div class="panel-main" id="panel-main">
+        <div id="try-stepper" class="panel-stepper" aria-label="Try-on progress"></div>
 
-      <!-- Progress -->
-      <section id="view-progress" hidden>
-        <div id="progress-slot"></div>
-      </section>
+        <!-- Detail -->
+        <section id="view-detail" class="view" hidden>
+          <p class="eyebrow" id="detail-cat"></p>
+          <h2 id="detail-name" class="panel-title"></h2>
+          <p class="detail-price" id="detail-price"></p>
+          <div class="ornament left"></div>
+          <p class="detail-desc" id="detail-desc"></p>
+          <dl class="spec" id="detail-meta"></dl>
+          <div class="actions">
+            <button type="button" class="btn btn-primary btn-block" id="detail-try">Try it on</button>
+            <a class="btn btn-block" id="detail-wa" href="#" target="_blank" rel="noopener noreferrer" hidden>Enquire on WhatsApp</a>
+          </div>
+          <p class="detail-more"><a class="link" id="detail-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View on the store website &#8599;</a></p>
+        </section>
 
-      <!-- Result -->
-      <section id="view-result" hidden>
-        <div id="compare-slot"></div>
-        <p class="note">AI preview &mdash; the actual piece may vary slightly.</p>
-        <div class="msg msg-info" id="demo-note" hidden>Demo mode: no AI model connected</div>
-        <div class="stack">
-          <a class="btn btn-primary" id="result-download" href="#" download="tryon.jpg">Download</a>
-          <a class="btn btn-wa" id="result-wa" href="#" target="_blank" rel="noopener noreferrer" hidden>Ask about this on WhatsApp</a>
-          <button type="button" class="btn" id="result-again">Try another photo</button>
-          <button type="button" class="btn btn-ghost" id="result-back">Back to collection</button>
-        </div>
-      </section>
+        <!-- Photo -->
+        <section id="view-selfie" class="view" hidden>
+          <p class="eyebrow" id="selfie-eyebrow">Step 02</p>
+          <h2 class="panel-title" id="selfie-title">Your photo</h2>
+          <div class="guide">
+            <div class="guide-art" id="guide-art" aria-hidden="true"></div>
+            <div class="guide-text">
+              <p class="eyebrow">For the best result</p>
+              <p id="selfie-tip"></p>
+            </div>
+          </div>
+          <input type="file" id="selfie-camera" accept="image/*" capture="user" hidden>
+          <input type="file" id="selfie-gallery" accept="image/*" hidden>
+          <div class="dropzone" id="selfie-drop">
+            <div class="drop-empty" id="drop-empty">
+              <p class="drop-title">Add a photo of yourself</p>
+              <p class="hint drop-desktop">Drag and drop a photo here, or</p>
+              <div class="drop-btns">
+                <button type="button" class="btn btn-sm" id="selfie-take">Take a photo</button>
+                <button type="button" class="btn btn-sm" id="selfie-choose">Choose from library</button>
+              </div>
+            </div>
+            <div class="drop-preview" id="selfie-preview" hidden>
+              <img id="selfie-img" alt="Preview of your selected photo">
+              <button type="button" class="btn btn-sm drop-replace" id="selfie-replace">Replace photo</button>
+            </div>
+          </div>
+          <div class="consent">
+            <label class="check" for="consent">
+              <input type="checkbox" id="consent">
+              <span>I agree that my photo is used to create this preview and deleted automatically within 7 days.</span>
+            </label>
+          </div>
+          <div id="selfie-error" role="alert" hidden></div>
+          <div class="actions">
+            <button type="button" class="btn btn-primary btn-block" id="selfie-submit">Create my look</button>
+            <button type="button" class="btn btn-ghost btn-block" id="selfie-back">Back</button>
+          </div>
+        </section>
 
-      <!-- Failed -->
-      <section id="view-failed" hidden>
-        <div class="msg msg-error" role="alert" id="failed-msg">Something went wrong.</div>
-        <div class="stack">
-          <button type="button" class="btn btn-primary" id="failed-retry">Try again</button>
-          <button type="button" class="btn btn-ghost" id="failed-close">Close</button>
-        </div>
-      </section>
+        <!-- Progress -->
+        <section id="view-progress" class="view" hidden>
+          <p class="eyebrow">Step 02</p>
+          <h2 class="panel-title">Creating your look</h2>
+          <div class="progress-frame">
+            <img id="progress-img" alt="Your photo, being prepared">
+            <span class="sweep" aria-hidden="true"></span>
+          </div>
+          <div class="progress-line" aria-hidden="true"><span></span></div>
+          <p class="progress-msg" id="progress-msg" role="status" aria-live="polite"></p>
+          <p class="hint center">This usually takes 10&ndash;40 seconds. Please keep this page open.</p>
+        </section>
+
+        <!-- Result -->
+        <section id="view-result" class="view" hidden>
+          <p class="eyebrow">Step 03</p>
+          <h2 class="panel-title">Your look</h2>
+          <div id="compare-slot"></div>
+          <p class="caption">AI preview &mdash; the actual piece may vary slightly.</p>
+          <div class="msg msg-info" id="demo-note" hidden>Demo mode &mdash; no AI model connected</div>
+          <div class="actions">
+            <a class="btn btn-primary btn-block" id="result-download" href="#" download="tryon.jpg">Download</a>
+            <a class="btn btn-whatsapp btn-block" id="result-wa" href="#" target="_blank" rel="noopener noreferrer" hidden>Enquire on WhatsApp</a>
+            <button type="button" class="btn btn-block" id="result-again">Try another photo</button>
+            <button type="button" class="btn btn-ghost btn-block" id="result-back">Back to collection</button>
+          </div>
+        </section>
+
+        <!-- Failed -->
+        <section id="view-failed" class="view" hidden>
+          <p class="eyebrow">Step 02</p>
+          <h2 class="panel-title">We couldn&rsquo;t finish your look</h2>
+          <div class="msg msg-error" role="alert" id="failed-msg">Something went wrong.</div>
+          <div class="actions">
+            <button type="button" class="btn btn-primary btn-block" id="failed-retry">Try again</button>
+            <button type="button" class="btn btn-ghost btn-block" id="failed-close">Close</button>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 

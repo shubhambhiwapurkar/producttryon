@@ -3,29 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Set Up Your Store</title>
+  <title>Set up your boutique</title>
   <meta name="robots" content="noindex">
-  <meta name="color-scheme" content="light dark">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4l26 22-12 34H18L6 26z' fill='%23b08d57'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap">
-  <link rel="stylesheet" href="/static/styles.css">
+  <meta name="theme-color" content="#fbf8f3">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4l11 9-11 15L5 13z' fill='none' stroke='%23a88b5c' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/studio.css">
 </head>
-<body>
-  <header class="wizard-head container">
-    <h1>Set up your virtual try-on</h1>
-    <p class="hint">Ready in a few minutes. No technical knowledge needed.</p>
+<body class="ob">
+  <header class="ob-bar">
+    <div class="ob-bar-in">
+      <a class="wordmark" href="/onboard" aria-label="Atelier">Atelier</a>
+      <span class="eyebrow" id="ob-label" aria-live="polite">Step 01 of 05</span>
+    </div>
+    <div class="ob-progress" id="ob-progress" role="progressbar" aria-label="Setup progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
+      <span id="ob-fill"></span>
+    </div>
   </header>
 
-  <main class="container narrow">
-    <nav id="stepper" aria-label="Setup progress"></nav>
-    <div id="global-error" class="msg msg-error" role="alert" hidden></div>
-    <section class="card wizard-step" id="step-body" aria-live="polite"></section>
-    <div class="wizard-nav">
-      <button type="button" class="btn" id="btn-back">Back</button>
-      <button type="button" class="btn btn-primary" id="btn-next">Next</button>
+  <main class="ob-main">
+    <div class="ob-col" id="ob-col">
+      <div class="ob-stage" id="stage"></div>
+      <nav class="ob-nav" id="ob-nav" aria-label="Step navigation">
+        <button type="button" class="btn btn-ghost" id="btn-back">Back</button>
+        <button type="button" class="btn btn-primary" id="btn-next">Continue</button>
+      </nav>
     </div>
   </main>
 
+  <noscript><p class="center small">Please enable JavaScript to set up your boutique.</p></noscript>
   <script type="module" src="/static/onboard.js"></script>
 </body>
 </html>

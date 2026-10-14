@@ -270,26 +270,25 @@ export function createCompare(beforeUrl, afterUrl) {
 // ---------- stepper ----------
 
 /**
- * Render a progress stepper into `container`.
+ * Render a progress stepper into `container` (see `.stepper` in css/base.css).
  * steps: [label,...]; current: 0-based index; done: Set of completed indexes.
+ * Output: <ol class="stepper"><li class="is-done|is-current"><span class="stepper-num">01</span>
+ * <span class="stepper-label">…</span></li>…</ol>. `compact` only adds a "compact" class for page CSS.
  */
 export function renderStepper(container, steps, current, done = new Set(), { compact = false } = {}) {
   container.replaceChildren();
-  container.classList.add("stepper");
+  container.classList.remove("stepper");
   container.classList.toggle("compact", compact);
   const items = steps.map((label, i) => {
     const complete = done.has(i) && i !== current;
-    const li = h("li", { class: `step${i === current ? " is-current" : ""}${complete ? " is-done" : ""}` },
-      h("span", { class: "dot", "aria-hidden": "true", text: complete ? "✓" : String(i + 1) }),
-      h("span", { class: "step-label", text: label }),
+    const li = h("li", { class: i === current ? "is-current" : complete ? "is-done" : null },
+      h("span", { class: "stepper-num", "aria-hidden": "true", text: String(i + 1).padStart(2, "0") }),
+      h("span", { class: "stepper-label", text: label }),
       h("span", { class: "sr-only", text: complete ? " (completed)" : i === current ? " (current step)" : "" }));
     if (i === current) li.setAttribute("aria-current", "step");
     return li;
   });
-  const mobile = h("p", { class: "stepper-mobile", text: `Step ${current + 1} of ${steps.length} · ${steps[current]}` });
-  const bar = h("div", { class: "stepper-bar", "aria-hidden": "true" },
-    h("span", { style: `width:${((current + 1) / steps.length) * 100}%` }));
-  container.append(mobile, bar, h("ol", { class: "stepper-list" }, ...items));
+  container.append(h("ol", { class: "stepper" }, ...items));
 }
 
 // ---------- product photo picker (1-5 photos, one angle each) ----------
