@@ -141,6 +141,10 @@ def get_renderer(name: str | None = None) -> Renderer:
     name = name or config.RENDERER
     if name == "gemini":
         return GeminiRenderer()
+    if name == "composite":
+        from .compositor import CompositeRenderer
+
+        return CompositeRenderer()
     if name == "mock":
         return MockRenderer()
     raise ValueError(f"Unknown renderer: {name}")

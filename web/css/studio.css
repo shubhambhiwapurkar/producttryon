@@ -404,3 +404,6 @@
 }
 
 .field { align-content: start; }
+
+/* See shop.css: blend white studio backgrounds into the image well. */
+.well img, .tile-frame img { mix-blend-mode: multiply; }

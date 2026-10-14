@@ -40,9 +40,9 @@ Then open:
 - **http://localhost:8000/admin/demo**: the jeweller's page. Paste the admin
   token that `scripts.demo` printed.
 
-**Demo mode vs real AI:** without an API key the app runs in demo mode. It
-pastes the product photo onto the person and shows "Demo mode: no AI model
-connected". For real try-ons, get a Gemini API key from
+**Without an AI key vs with one:** without a key, earrings and necklaces are
+placed using face detection and the exact product photo (rings and bracelets
+show a basic placeholder). For AI try-ons, get a Gemini API key from
 https://aistudio.google.com/apikey and start the app like this:
 
 ```bash
@@ -52,15 +52,38 @@ GEMINI_API_KEY=your-key .venv/bin/uvicorn app.main:app --reload
 To use the other settings in `.env.example`, copy it to `.env`, fill it in, and
 load it with `set -a; . ./.env; set +a` before starting the app.
 
-### Screenshots (demo mode, placeholder jewellery)
+### Client demo with real earrings (RingFIR)
 
-| Storefront | Product | Try-on result |
-|---|---|---|
-| ![](docs/screenshots/shop-desktop-1-home.png) | ![](docs/screenshots/shop-desktop-3-panel.png) | ![](docs/screenshots/shop-mobile-7-result.png) |
+The demo store uses real catalogue photos from the
+[RingFIR earring dataset](https://github.com/skarifahmed/RingFIR) (MIT licence,
+2,651 gold earrings in 46 styles). It takes one photo from each style:
 
-| Onboarding wizard | Go live | Studio |
+```bash
+git clone --depth 1 https://github.com/skarifahmed/RingFIR ../RingFIR
+.venv/bin/python -m scripts.seed_ringfir ../RingFIR --store demo --create "Maison Aurelia"
+.venv/bin/uvicorn app.main:app --reload       # open http://localhost:8000/s/demo
+```
+
+Try a piece on with `docs/demo/sample-customer.jpg` (a public-domain portrait),
+or better, with a live selfie of your client.
+
+- **Without an AI key** earrings use the **composite renderer**
+  (`app/compositor.py`). It finds the face and hangs the jeweller's *exact*
+  product photo from each ear lobe, scaled from the product size and with a
+  soft shadow. It is free, instant and never alters the design. Necklaces,
+  pendants, maang tikka and nose pins are placed the same way.
+- **With `GEMINI_API_KEY`** the AI renderer blends the piece into the photo
+  with lighting and skin contact.
+
+**Walkthrough video (phone):** [docs/demo/try-on-walkthrough.mp4](docs/demo/try-on-walkthrough.mp4)
+
+| Storefront | Collection | Try-on result |
 |---|---|---|
-| ![](docs/screenshots/onboard-d-1a-boutique.png) | ![](docs/screenshots/onboard-d-5a-live.png) | ![](docs/screenshots/studio-d-3-collection.png) |
+| ![](docs/screenshots/demo-m-1-home.png) | ![](docs/screenshots/demo-m-2-collection.png) | ![](docs/screenshots/demo-m-6-result.png) |
+
+| Desktop result | Onboarding wizard | Studio |
+|---|---|---|
+| ![](docs/screenshots/demo-d-3-result.png) | ![](docs/screenshots/onboard-d-1a-boutique.png) | ![](docs/screenshots/studio-d-3-collection.png) |
 
 **Onboard a jeweller with the wizard:** open `http://localhost:8000/onboard`. It
 walks through five steps: store details → add products (import from their

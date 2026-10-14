@@ -471,7 +471,7 @@ async function startTry(area) {
     again.addEventListener("click", () => render({ keepAnimation: true }));
     area.replaceChildren(h("div", { class: "result fade-in" },
       createCompare(job.selfie_url, job.result_url),
-      h("p", { class: "small center", text: "AI preview. The finished piece may differ slightly." }),
+      h("p", { class: "small center", text: "Virtual try-on preview. The finished piece may differ slightly." }),
       job.renderer === "mock" ? h("p", { class: "small center", text: "Demo mode: no AI model is connected, so this is a placeholder preview." }) : null,
       h("div", { class: "center" }, again)));
   } catch (e) {

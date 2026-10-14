@@ -7,7 +7,9 @@ DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DATA_DIR / 'tryon.db'
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_IMAGE_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-3-pro-image-preview")
-RENDERER = os.environ.get("TRYON_RENDERER") or ("gemini" if GEMINI_API_KEY else "mock")
+# "gemini" (AI edit), "composite" (places the exact product photo using face landmarks;
+# earrings, necklaces, pendants, maang tikka, nose pins) or "mock" (offline placeholder).
+RENDERER = os.environ.get("TRYON_RENDERER") or ("gemini" if GEMINI_API_KEY else "composite")
 
 PLATFORM_ADMIN_KEY = os.environ.get("PLATFORM_ADMIN_KEY", "")
 # When true, anyone can create a store from the onboarding wizard (/onboard).

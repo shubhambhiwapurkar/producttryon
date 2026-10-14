@@ -7,4 +7,6 @@ beautifulsoup4>=4.12
 pillow>=10.4
 google-genai>=1.52
 qrcode[pil]>=7.4
+# 4.x: OpenCV 5 dropped the bundled Haar face detector used by app/compositor.py
+opencv-python-headless>=4.8,<5
 pytest>=8

@@ -61,7 +61,7 @@ def delete_media(rel_path: str | None) -> None:
         (config.MEDIA_DIR / rel_path).unlink(missing_ok=True)
 
 
-def watermark(img: Image.Image, text: str = "AI preview - actual piece may vary") -> Image.Image:
+def watermark(img: Image.Image, text: str = "Virtual try-on preview") -> Image.Image:
     img = img.convert("RGB")
     draw = ImageDraw.Draw(img, "RGBA")
     size = max(12, img.width // 45)
