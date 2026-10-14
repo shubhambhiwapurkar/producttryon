@@ -29,7 +29,13 @@ Without `GEMINI_API_KEY` the app uses the **mock renderer**, which pastes the
 product photo onto the selfie (no AI). It is labelled "MOCK RENDER" so it is
 never mistaken for a real result. Use it to try the flow end to end.
 
-Create a store (this prints the admin token):
+**Onboard a jeweller with the wizard:** open `http://localhost:8000/onboard`. It
+walks through five steps: store details → add products (import from their
+website or upload) → check categories → test a try-on → go live with a link,
+QR code and a ready-to-share message. Signup needs an invite code from
+`INVITE_CODES` (or the platform key) unless `OPEN_SIGNUP=true`.
+
+Or create a store from the command line (this prints the admin token):
 
 ```bash
 .venv/bin/python -m scripts.create_store demo "Demo Jewellers" --whatsapp "+91 98765 43210"

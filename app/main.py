@@ -3,18 +3,21 @@
 Pages
   /s/{slug}            customer try-on page for a store
   /admin/{slug}        store admin (products, website import, settings)
+  /onboard             step-by-step setup wizard for a new store
 API
   see the route definitions below; admin routes need the X-Admin-Token header.
 """
 
+import io
 import logging
 import re
 import secrets
+import unicodedata
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import BackgroundTasks, Depends, FastAPI, File, Form, Header, HTTPException, UploadFile
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi import BackgroundTasks, Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
@@ -107,6 +110,36 @@ def check_category(category: str) -> str:
 # ---------- request bodies ----------
 
 
+def slugify(name: str) -> str:
+    text = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", "-", text).strip("-")[:50] or "store"
+
+
+def unique_slug(base: str, session: Session) -> str:
+    slug, n = base, 2
+    while session.scalar(select(db.Store.id).where(db.Store.slug == slug)) is not None:
+        slug, n = f"{base}-{n}", n + 1
+    return slug
+
+
+class Signup(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    slug: str | None = Field(default=None, pattern=r"^[a-z0-9][a-z0-9-]{1,62}$")
+    whatsapp_number: str | None = None
+    website_url: str | None = None
+    invite_code: str | None = None
+
+
+class ProductUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=300)
+    category: str | None = None
+    description: str | None = None
+    price: str | None = None
+    currency: str | None = None
+    dimensions: str | None = None
+    product_url: str | None = None
+
+
 class StoreCreate(BaseModel):
     slug: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{1,62}$")
     name: str = Field(min_length=1, max_length=200)
@@ -148,6 +181,47 @@ def create_app() -> FastAPI:
     @app.get("/admin/{slug}", include_in_schema=False)
     def admin_page(slug: str):
         return FileResponse(WEB_DIR / "admin.html")
+
+    @app.get("/onboard", include_in_schema=False)
+    def onboard_page():
+        return FileResponse(WEB_DIR / "onboard.html")
+
+    # ----- onboarding -----
+
+    @app.get("/api/signup/config")
+    def signup_config():
+        return {"open_signup": config.OPEN_SIGNUP, "categories": config.CATEGORIES}
+
+    @app.post("/api/signup", status_code=201)
+    def signup(body: Signup, session: SessionDep):
+        """Create a store from the onboarding wizard. Returns the admin token once."""
+        if not config.OPEN_SIGNUP:
+            code = body.invite_code or ""
+            platform_ok = bool(config.PLATFORM_ADMIN_KEY) and secrets.compare_digest(code, config.PLATFORM_ADMIN_KEY)
+            if not (platform_ok or code in config.INVITE_CODES):
+                raise HTTPException(403, "A valid invite code is required")
+        if body.slug and session.scalar(select(db.Store.id).where(db.Store.slug == body.slug)) is not None:
+            raise HTTPException(409, "That store link is already taken")
+        store = db.Store(
+            slug=body.slug or unique_slug(slugify(body.name), session),
+            name=body.name,
+            whatsapp_number=body.whatsapp_number,
+            website_url=body.website_url,
+        )
+        session.add(store)
+        session.commit()
+        return {**store_out(store, session), "admin_token": store.admin_token}
+
+    @app.get("/api/stores/{slug}/qr.png", include_in_schema=False)
+    def store_qr(slug: str, request: Request, session: SessionDep):
+        """QR code of the customer page, for the shop counter and social posts."""
+        import qrcode
+
+        store = get_store(slug, session)
+        img = qrcode.make(str(request.base_url).rstrip("/") + f"/s/{store.slug}", box_size=10, border=2)
+        buf = io.BytesIO()
+        img.save(buf, "PNG")
+        return Response(buf.getvalue(), media_type="image/png")
 
     # ----- platform -----
 
@@ -226,6 +300,19 @@ def create_app() -> FastAPI:
             angle = angles[pos] if pos < len(angles) and angles[pos] else None
             product.images.append(db.ProductImage(path=path, angle=angle, position=pos))
         session.add(product)
+        session.commit()
+        return product_out(product)
+
+    @app.patch("/api/stores/{slug}/products/{product_id}")
+    def update_product(product_id: int, body: ProductUpdate, store: AdminStore, session: SessionDep):
+        product = session.get(db.Product, product_id)
+        if product is None or product.store_id != store.id:
+            raise HTTPException(404, "Product not found")
+        changes = body.model_dump(exclude_unset=True)
+        if "category" in changes:
+            check_category(changes["category"])
+        for key, value in changes.items():
+            setattr(product, key, value)
         session.commit()
         return product_out(product)
 

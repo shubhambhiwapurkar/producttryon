@@ -10,6 +10,10 @@ GEMINI_IMAGE_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-3-pro-image-pr
 RENDERER = os.environ.get("TRYON_RENDERER") or ("gemini" if GEMINI_API_KEY else "mock")
 
 PLATFORM_ADMIN_KEY = os.environ.get("PLATFORM_ADMIN_KEY", "")
+# When true, anyone can create a store from the onboarding wizard (/onboard).
+# Otherwise the wizard asks for an invite code (comma-separated list) or the platform key.
+OPEN_SIGNUP = os.environ.get("OPEN_SIGNUP", "").lower() in ("1", "true", "yes")
+INVITE_CODES = {c.strip() for c in os.environ.get("INVITE_CODES", "").split(",") if c.strip()}
 RETENTION_DAYS = int(os.environ.get("RETENTION_DAYS", "7"))
 
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024

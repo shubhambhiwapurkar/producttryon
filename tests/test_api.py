@@ -144,3 +144,30 @@ def test_safe_client_refuses_internal_urls(url):
 
     with safe_client() as c, pytest.raises((BlockedURL, httpx.UnsupportedProtocol)):
         c.get(url)
+
+
+def test_signup_needs_invite_unless_open(client, monkeypatch):
+    assert client.post("/api/signup", json={"name": "Sharma Jewellers"}).status_code == 403
+    monkeypatch.setattr(config, "INVITE_CODES", {"WELCOME"})
+    resp = client.post("/api/signup", json={"name": "Sharma Jewellers", "invite_code": "WELCOME"})
+    assert resp.status_code == 201
+    assert resp.json()["slug"] == "sharma-jewellers" and resp.json()["admin_token"]
+
+    monkeypatch.setattr(config, "OPEN_SIGNUP", True)
+    again = client.post("/api/signup", json={"name": "Sharma Jewellers"}).json()
+    assert again["slug"] == "sharma-jewellers-2"
+    assert client.post("/api/signup", json={"name": "X", "slug": "sharma-jewellers"}).status_code == 409
+
+
+def test_update_product_category(client, store):
+    product = add_product(client, store)
+    url = f"/api/stores/demo/products/{product['id']}"
+    assert client.patch(url, json={"category": "pendant"}).status_code == 401
+    assert client.patch(url, json={"category": "hat"}, headers=admin(store)).status_code == 400
+    updated = client.patch(url, json={"category": "pendant", "price": "9999"}, headers=admin(store)).json()
+    assert (updated["category"], updated["price"], updated["name"]) == ("pendant", "9999", "Kundan Choker")
+
+
+def test_store_qr(client, store):
+    resp = client.get("/api/stores/demo/qr.png")
+    assert resp.status_code == 200 and resp.headers["content-type"] == "image/png"
