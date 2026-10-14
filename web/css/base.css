@@ -1,0 +1,158 @@
+/* Maison design system: shared by the storefront (/s), studio (/admin) and onboarding (/onboard).
+   Quiet luxury: ivory and ink, hairline rules, a light serif for display, small letter-spaced capitals. */
+
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap");
+
+:root {
+  --ivory: #fbf8f3;
+  --paper: #ffffff;
+  --well: #f3eee6;          /* product image background */
+  --sand: #e9e1d4;
+  --line: #e4dccf;          /* hairline borders */
+  --line-strong: #cfc4b2;
+  --ink: #1a1816;
+  --ink-soft: #4a453f;
+  --muted: #8a8278;
+  --gold: #a88b5c;          /* champagne accent, use sparingly */
+  --gold-deep: #8a6e43;
+  --danger: #9b2c2c;
+  --success: #3d6b4f;
+  --whatsapp: #1f7a4d;
+
+  --font-display: "Cormorant Garamond", "Cormorant", Garamond, "Times New Roman", serif;
+  --font-sans: "Jost", "Futura", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+
+  --track: 0.18em;          /* letter-spacing for small caps */
+  --radius: 2px;
+  --shadow: 0 24px 60px -30px rgba(26, 24, 22, 0.35);
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px;
+  --space-6: 32px; --space-7: 48px; --space-8: 72px; --space-9: 112px;
+  --container: 1240px;
+  --gutter: 16px;
+}
+@media (min-width: 768px) { :root { --gutter: 32px; } }
+@media (min-width: 1200px) { :root { --gutter: 48px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--ivory);
+  color: var(--ink);
+  font: 300 16px/1.65 var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+::selection { background: var(--sand); }
+
+/* ---------- type ---------- */
+.display, h1, h2, h3 { font-family: var(--font-display); font-weight: 300; letter-spacing: 0.01em; line-height: 1.1; margin: 0; }
+.display { font-size: clamp(40px, 7vw, 84px); }
+h1 { font-size: clamp(34px, 5vw, 56px); }
+h2 { font-size: clamp(28px, 3.6vw, 40px); }
+h3 { font-size: 24px; font-weight: 400; }
+.italic { font-style: italic; }
+p { margin: 0 0 var(--space-4); }
+.eyebrow {
+  font: 400 11px/1.4 var(--font-sans);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lede { font-size: 17px; color: var(--ink-soft); max-width: 46ch; }
+.small { font-size: 13px; color: var(--muted); }
+.link { border-bottom: 1px solid currentColor; padding-bottom: 1px; transition: color .2s; }
+.link:hover { color: var(--gold-deep); }
+.rule { height: 1px; background: var(--line); border: 0; margin: var(--space-6) 0; }
+.ornament { width: 40px; height: 1px; background: var(--gold); margin: var(--space-4) auto; }
+
+/* ---------- layout ---------- */
+.container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 var(--gutter); }
+.narrow { max-width: 720px; }
+.stack > * + * { margin-top: var(--space-4); }
+.center { text-align: center; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: 48px; padding: 0 var(--space-6);
+  font: 400 12px/1 var(--font-sans); letter-spacing: var(--track); text-transform: uppercase;
+  color: var(--ink); background: transparent; border: 1px solid var(--ink); border-radius: var(--radius);
+  cursor: pointer; transition: background .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:hover { background: var(--ink); color: var(--ivory); }
+.btn-primary { background: var(--ink); color: var(--ivory); }
+.btn-primary:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+.btn-ghost { border-color: transparent; padding: 0 var(--space-3); }
+.btn-ghost:hover { background: transparent; color: var(--gold-deep); }
+.btn-whatsapp { background: var(--whatsapp); border-color: var(--whatsapp); color: #fff; }
+.btn-whatsapp:hover { background: #17603c; border-color: #17603c; color: #fff; }
+.btn-danger { border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-block { width: 100%; }
+.btn-sm { min-height: 36px; padding: 0 var(--space-4); font-size: 11px; }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: .4; cursor: not-allowed; pointer-events: none; }
+.btn.is-busy { position: relative; color: transparent !important; }
+.btn.is-busy::after {
+  content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid var(--ivory); border-right-color: transparent; animation: spin .8s linear infinite;
+}
+.btn:not(.btn-primary).is-busy::after { border-color: var(--ink); border-right-color: transparent; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- forms ---------- */
+.field { display: grid; gap: var(--space-2); margin-bottom: var(--space-5); }
+.field-row { display: grid; gap: 0 var(--space-5); }
+@media (min-width: 640px) { .field-row { grid-template-columns: 1fr 1fr; } }
+label, .label { font: 400 11px/1.4 var(--font-sans); letter-spacing: var(--track); text-transform: uppercase; color: var(--ink-soft); }
+.input, input[type="text"], input[type="url"], input[type="tel"], input[type="number"], input[type="search"], input[type="password"], select, textarea {
+  width: 100%; min-height: 48px; padding: 12px 0;
+  font: 300 16px/1.4 var(--font-sans); color: var(--ink);
+  background: transparent; border: 0; border-bottom: 1px solid var(--line-strong); border-radius: 0;
+  transition: border-color .2s;
+}
+textarea { min-height: 96px; resize: vertical; }
+select { appearance: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%231a1816'/%3E%3C/svg%3E") right 4px center no-repeat; padding-right: 24px; }
+input:focus, select:focus, textarea:focus { outline: none; border-bottom-color: var(--ink); }
+::placeholder { color: #b3aba0; }
+.hint { font-size: 13px; color: var(--muted); margin: 0; }
+.check { display: flex; gap: var(--space-3); align-items: flex-start; font: 300 14px/1.5 var(--font-sans); letter-spacing: 0; text-transform: none; color: var(--ink-soft); cursor: pointer; }
+.check input { appearance: none; flex: none; width: 18px; height: 18px; margin-top: 2px; border: 1px solid var(--ink); border-radius: 0; background: var(--paper); cursor: pointer; display: grid; place-content: center; }
+.check input:checked { background: var(--ink); }
+.check input:checked::after { content: ""; width: 9px; height: 5px; border: solid var(--ivory); border-width: 0 0 1.5px 1.5px; transform: rotate(-45deg) translate(1px, -1px); }
+
+/* ---------- surfaces ---------- */
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--space-6); }
+@media (max-width: 640px) { .card { padding: var(--space-5); } }
+.badge { display: inline-block; padding: 3px 10px; font: 400 10px/1.4 var(--font-sans); letter-spacing: var(--track); text-transform: uppercase; border: 1px solid var(--line-strong); color: var(--ink-soft); }
+.badge-gold { border-color: var(--gold); color: var(--gold-deep); }
+
+/* messages */
+.msg { padding: var(--space-3) var(--space-4); border-left: 2px solid var(--ink); background: var(--paper); font-size: 14px; margin: var(--space-4) 0; }
+.msg-error { border-color: var(--danger); color: var(--danger); }
+.msg-success { border-color: var(--success); color: var(--success); }
+.msg-info { border-color: var(--gold); color: var(--ink-soft); }
+
+/* ---------- stepper (try-on, onboarding) ----------
+   <ol class="stepper"><li class="is-done">…</li><li class="is-current" aria-current="step">…</li><li>…</li></ol>
+   each li: <span class="stepper-num">01</span><span class="stepper-label">Your photo</span> */
+.stepper { list-style: none; display: flex; gap: var(--space-2); margin: 0; padding: 0; counter-reset: s; }
+.stepper li { flex: 1; display: grid; gap: var(--space-2); padding-top: var(--space-3); border-top: 1px solid var(--line); color: var(--muted); transition: border-color .4s var(--ease), color .4s; }
+.stepper li.is-done { border-top-color: var(--gold); color: var(--ink-soft); }
+.stepper li.is-current { border-top: 2px solid var(--ink); color: var(--ink); }
+.stepper-num { font: 400 11px/1 var(--font-sans); letter-spacing: var(--track); }
+.stepper-label { font: 400 11px/1.3 var(--font-sans); letter-spacing: 0.12em; text-transform: uppercase; }
+@media (max-width: 560px) { .stepper li:not(.is-current) .stepper-label { display: none; } }
+
+/* ---------- motion ---------- */
+.fade-in { animation: fadeIn .6s var(--ease) both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

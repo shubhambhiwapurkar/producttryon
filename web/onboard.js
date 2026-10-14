@@ -115,7 +115,7 @@ function go(step) {
 
 async function onNext() {
   setMsg($("global-error"), "");
-  if (S.step === 0 && !created()) return busy($("btn-next"), createStore);
+  if (S.step === 0 && !created()) { await busy($("btn-next"), createStore); updateNav(); return; }
   if (isValid()) go(S.step + 1);
 }
 
