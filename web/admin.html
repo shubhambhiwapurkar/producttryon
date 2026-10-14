@@ -3,159 +3,117 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Store Admin</title>
+  <title>Studio</title>
   <meta name="robots" content="noindex">
-  <meta name="color-scheme" content="light dark">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4l26 22-12 34H18L6 26z' fill='%23b08d57'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap">
-  <link rel="stylesheet" href="/static/styles.css">
+  <meta name="theme-color" content="#fbf8f3">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4l11 9-11 15L5 13z' fill='none' stroke='%23a88b5c' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/studio.css">
 </head>
-<body>
-  <!-- Login -->
-  <main id="login-view" class="container" hidden>
-    <form class="card login-card" id="login-form" novalidate>
-      <h1>Store admin</h1>
-      <p class="hint" id="login-store">Enter your admin token to manage your store.</p>
+<body class="studio">
+
+  <!-- Sign in -->
+  <main id="login-view" class="login" hidden>
+    <form class="login-card" id="login-form" novalidate>
+      <a class="wordmark wordmark-lg" id="login-brand" href="/onboard">Atelier</a>
+      <p class="eyebrow">Studio</p>
+      <div class="ornament" aria-hidden="true"></div>
       <div class="field">
-        <label for="token">Admin token</label>
-        <input type="password" id="token" autocomplete="current-password" required>
+        <label for="token">Studio key</label>
+        <input type="password" id="token" autocomplete="current-password" autocapitalize="off" spellcheck="false" placeholder="Paste your key">
       </div>
-      <div id="login-error" class="msg msg-error" role="alert" hidden></div>
-      <button type="submit" class="btn btn-primary btn-lg" id="login-btn">Log in</button>
+      <div id="login-error" hidden role="alert"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="login-btn">Enter</button>
+      <p class="small login-foot"><a class="link" href="/onboard">New here? Set up your boutique</a></p>
     </form>
   </main>
 
-  <!-- Dashboard -->
-  <div id="dash-view" hidden>
-    <div class="container">
-      <div class="admin-top">
-        <h1 id="admin-title">Store admin</h1>
-        <div class="btn-row" style="flex:none">
-          <a class="btn btn-sm" id="view-shop" href="#" target="_blank" rel="noopener">View shop</a>
-          <button type="button" class="btn btn-sm" id="logout">Log out</button>
-        </div>
+  <!-- Studio -->
+  <div id="app" class="shell" hidden>
+    <aside class="sidebar">
+      <div class="side-head">
+        <a class="wordmark" id="brand" href="#overview">Atelier</a>
+        <span class="eyebrow">Studio</span>
       </div>
-    </div>
-
-    <main class="container narrow">
-      <div id="page-error" class="msg msg-error" role="alert" hidden></div>
-
-      <div class="banner" id="setup-banner" hidden>
-        <div><strong>Finish setting up your store</strong><br><span class="hint">Add your first products so customers can try them on.</span></div>
-        <a class="btn btn-primary btn-sm" id="setup-link" href="/onboard">Continue setup</a>
+      <nav class="nav" id="nav" aria-label="Studio">
+        <a href="#overview" data-nav="overview">Overview</a>
+        <a href="#collection" data-nav="collection">Collection</a>
+        <a href="#add" data-nav="add">Add a piece</a>
+        <a href="#import" data-nav="import">Import</a>
+        <a href="#settings" data-nav="settings">Settings</a>
+        <a href="#share" data-nav="share">Share</a>
+      </nav>
+      <div class="side-foot">
+        <a id="view-shop" href="#" target="_blank" rel="noopener">View boutique <span aria-hidden="true">&#8599;</span></a>
+        <button type="button" id="logout">Sign out</button>
       </div>
+    </aside>
 
-      <!-- Settings -->
-      <section class="card" aria-labelledby="h-settings">
-        <h2 id="h-settings">Store settings</h2>
-        <form id="settings-form">
-          <div class="field">
-            <label for="set-name">Store name</label>
-            <input type="text" id="set-name" required maxlength="200">
-          </div>
-          <div class="grid-2">
-            <div class="field">
-              <label for="set-wa">WhatsApp number</label>
-              <input type="tel" id="set-wa" placeholder="+91 98765 43210" autocomplete="off">
-              <span class="hint">Customers can message you from their try-on result.</span>
-            </div>
-            <div class="field">
-              <label for="set-web">Website</label>
-              <input type="url" id="set-web" placeholder="https://yourstore.com" autocomplete="off">
-            </div>
-          </div>
-          <div id="settings-msg" role="status" aria-live="polite" hidden></div>
-          <button type="submit" class="btn btn-primary" id="settings-btn">Save settings</button>
-        </form>
+    <main class="content" id="content">
+      <section class="view" data-view="overview" hidden>
+        <header class="view-head">
+          <p class="eyebrow">Overview</p>
+          <h2 id="ov-title">Welcome</h2>
+          <p class="lede">A quiet look at your collection.</p>
+        </header>
+        <div id="overview-body"></div>
+      </section>
 
-        <hr style="border:0;border-top:1px solid var(--border);margin:22px 0">
-        <div class="field">
-          <label for="share-link">Your customer link</label>
-          <div class="link-box">
-            <input type="text" id="share-link" readonly>
-            <button type="button" class="btn" id="copy-link">Copy</button>
-          </div>
-          <span class="hint">Share it on WhatsApp, Instagram or print it as a QR code.</span>
+      <section class="view" data-view="collection" hidden>
+        <header class="view-head">
+          <p class="eyebrow">Collection</p>
+          <h2>Your pieces</h2>
+          <p class="lede">Change a piece's type inline. The type decides where it is placed on the customer.</p>
+        </header>
+        <div class="toolbar">
+          <div class="field"><label for="q">Search</label><input type="search" id="q" placeholder="Search by name"></div>
+          <div class="field"><label for="filter">Type</label><select id="filter"></select></div>
+          <p class="small toolbar-count" id="count" aria-live="polite"></p>
         </div>
+        <ul class="rows" id="rows"></ul>
+        <div class="empty" id="rows-empty" hidden></div>
       </section>
 
-      <!-- Import -->
-      <section class="card" aria-labelledby="h-import">
-        <h2 id="h-import">Import from your website</h2>
-        <form id="import-form">
-          <div class="grid-2">
-            <div class="field">
-              <label for="imp-url">Website or product page</label>
-              <input type="url" id="imp-url" placeholder="https://yourstore.com or a product page" required>
-            </div>
-            <div class="field">
-              <label for="imp-limit">Max products</label>
-              <input type="number" id="imp-limit" min="1" max="200" value="20">
-            </div>
-          </div>
-          <p class="hint">Works with Shopify, WooCommerce and pages with product structured data. Only import from websites you own or have permission to use.</p>
-          <div id="import-status" class="inline-status" role="status" aria-live="polite" hidden>
-            <span class="spinner" aria-hidden="true"></span><span>Importing&hellip; this can take a minute. Please keep this page open.</span>
-          </div>
-          <div id="import-msg" role="status" aria-live="polite" hidden></div>
-          <button type="submit" class="btn btn-primary" id="import-btn">Import products</button>
+      <section class="view" data-view="add" hidden>
+        <header class="view-head">
+          <p class="eyebrow">Add a piece</p>
+          <h2>A new piece</h2>
+          <p class="lede">Add up to five photographs, then the details. Click a tile or drop a photograph onto it.</p>
+        </header>
+        <div id="add-host"></div>
+      </section>
+
+      <section class="view" data-view="import" hidden>
+        <header class="view-head">
+          <p class="eyebrow">Import</p>
+          <h2>From your website</h2>
+          <p class="lede">Bring pieces, photographs and prices across from your existing shop.</p>
+        </header>
+        <div class="measure" id="import-host"></div>
+      </section>
+
+      <section class="view" data-view="settings" hidden>
+        <header class="view-head">
+          <p class="eyebrow">Settings</p>
+          <h2>Your boutique</h2>
+          <p class="lede">How customers see and reach you.</p>
+        </header>
+        <form class="measure" id="settings-form" novalidate>
+          <div class="field"><label for="set-name">Boutique name</label><input type="text" id="set-name" maxlength="200" required></div>
+          <div class="field"><label for="set-wa">WhatsApp number</label><input type="tel" id="set-wa" inputmode="tel" placeholder="+91 98765 43210"><span class="hint">Customers will enquire about pieces here.</span></div>
+          <div class="field"><label for="set-web">Website</label><input type="url" id="set-web" inputmode="url" placeholder="https://yourwebsite.com"></div>
+          <div id="settings-error" hidden role="alert"></div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary" id="settings-btn">Save changes</button></div>
         </form>
       </section>
 
-      <!-- Add product -->
-      <section class="card" aria-labelledby="h-add">
-        <h2 id="h-add">Add product</h2>
-        <form id="product-form">
-          <div class="field">
-            <label for="p-name">Name</label>
-            <input type="text" id="p-name" required maxlength="300">
-          </div>
-          <div class="grid-2">
-            <div class="field">
-              <label for="p-category">Category</label>
-              <select id="p-category" required></select>
-            </div>
-            <div class="field">
-              <label for="p-dimensions">Dimensions</label>
-              <input type="text" id="p-dimensions" placeholder="Length 18 in, pendant 3 cm">
-            </div>
-            <div class="field">
-              <label for="p-price">Price</label>
-              <input type="text" id="p-price" inputmode="decimal" placeholder="1250">
-            </div>
-            <div class="field">
-              <label for="p-currency">Currency</label>
-              <input type="text" id="p-currency" value="INR" maxlength="5" autocapitalize="characters">
-            </div>
-          </div>
-          <div class="field">
-            <label for="p-url">Product URL</label>
-            <input type="url" id="p-url" placeholder="https://yourstore.com/products/...">
-          </div>
-          <div class="field">
-            <label for="p-desc">Description</label>
-            <textarea id="p-desc"></textarea>
-          </div>
-
-          <div class="field">
-            <span class="label" id="photos-label">Photos (up to 5)</span>
-            <span class="hint">Tip: Plain light background, whole piece in frame, 3&ndash;5 angles give the best results.</span>
-            <div id="photo-slots" aria-labelledby="photos-label"></div>
-            <input type="file" id="p-files" accept="image/*" multiple hidden>
-            <div><button type="button" class="btn btn-sm" id="p-add-photos">Add photos</button></div>
-          </div>
-
-          <div id="product-msg" role="status" aria-live="polite" hidden></div>
-          <button type="submit" class="btn btn-primary" id="product-btn">Add product</button>
-        </form>
-      </section>
-
-      <!-- Product list -->
-      <section class="card" aria-labelledby="h-list">
-        <h2 id="h-list">Your products <span class="badge" id="product-count">0</span></h2>
-        <div id="list-msg" role="status" aria-live="polite" hidden></div>
-        <div class="product-list" id="product-list"></div>
-        <div class="empty" id="list-empty" hidden>No products yet. Import them from your website or add one above.</div>
+      <section class="view" data-view="share" hidden>
+        <header class="view-head">
+          <p class="eyebrow">Share</p>
+          <h2>Invite your customers</h2>
+          <p class="lede">Send the link, print the code, or paste the message.</p>
+        </header>
+        <div id="share-host"></div>
       </section>
     </main>
   </div>
