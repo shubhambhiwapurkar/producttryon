@@ -1,266 +1,285 @@
+/* Studio: the jeweller's back office. */
 import {
-  $, h, show, setMsg, busy, api, slugFromPath, storageGet, storageSet, categoryLabel, formatPrice, copyText, createPhotoSlots,
+  $, h, show, api, slugFromPath, storageGet, storageSet, categoryLabel, formatPrice,
 } from "/static/common.js";
+import {
+  icon, toast, confirmDialog, savedTick, buildProductForm, buildImporter, buildSharePanel, sourceLabel, adminTokenKey,
+} from "/static/studio-common.js";
 
 const slug = slugFromPath();
-const STORAGE_KEY = `tryon-admin-${slug}`;
-const MAX_PHOTOS = 5;
 const base = `/api/stores/${encodeURIComponent(slug)}`;
+const VIEWS = ["overview", "collection", "add", "import", "settings", "share"];
 
-const state = { token: "", store: null };
+const state = { token: "", store: null, products: [], q: "", filter: "", built: new Set() };
 
-/** API call with the admin token attached. */
-const call = (path, options = {}) => api(path, { ...options, token: state.token });
-const storageGetToken = () => storageGet(STORAGE_KEY) || "";
-const storageSetToken = (v) => storageSet(STORAGE_KEY, v || null);
+const call = (path, options = {}) => api(path, { ...options, token: state.token }).catch((err) => {
+  if (err.unauthorized) signedOut("Your session has ended. Please enter your key again.");
+  throw err;
+});
 
-// ---------- login / logout ----------
+const say = (el, text) => { el.textContent = text || ""; el.className = text ? "msg msg-error" : ""; el.hidden = !text; };
+
+// ---------- sign in / out ----------
 
 function showLogin(message) {
-  show($("dash-view"), false);
+  show($("app"), false);
   show($("login-view"), true);
-  setMsg($("login-error"), message);
+  say($("login-error"), message);
   $("token").focus();
+}
+
+function signedOut(message) {
+  storageSet(adminTokenKey(slug), null);
+  state.token = "";
+  state.built.clear();
+  $("token").value = "";
+  showLogin(message);
 }
 
 async function login(token) {
   state.token = token;
-  const store = await call(`${base}/admin/check`);
-  state.store = store;
-  storageSetToken(token);
+  state.store = await api(`${base}/admin/check`, { token });
+  storageSet(adminTokenKey(slug), token);
   show($("login-view"), false);
-  show($("dash-view"), true);
-  renderStore();
+  show($("app"), true);
+  paintStore();
   await loadProducts();
+  route();
 }
 
-function logout() {
-  storageSetToken("");
-  state.token = "";
-  $("token").value = "";
-  showLogin("");
-}
+// ---------- store ----------
 
-/** Called when any request is rejected as unauthorized. */
-function handleAuthError(err) {
-  if (!err.unauthorized) return false;
-  storageSetToken("");
-  state.token = "";
-  showLogin("Your session expired. Please enter your admin token again.");
-  return true;
-}
-
-// ---------- settings ----------
-
-function renderStore() {
+function paintStore() {
   const s = state.store;
-  document.title = `${s.name} – Admin`;
-  $("admin-title").textContent = s.name;
+  document.title = `${s.name} · Studio`;
+  $("brand").textContent = s.name;
+  $("view-shop").href = `/s/${encodeURIComponent(slug)}`;
   $("set-name").value = s.name || "";
   $("set-wa").value = s.whatsapp_number || "";
   $("set-web").value = s.website_url || "";
-  $("share-link").value = `${location.origin}/s/${slug}`;
-  $("view-shop").href = `/s/${encodeURIComponent(slug)}`;
-  $("setup-link").href = `/onboard?store=${encodeURIComponent(slug)}`;
-  const sel = $("p-category");
-  if (sel.options.length === 0) {
-    for (const c of s.all_categories) sel.append(h("option", { value: c, text: categoryLabel(c) }));
-  }
+  const filter = $("filter");
+  const current = filter.value;
+  filter.replaceChildren(h("option", { value: "", text: "All types" }));
+  for (const c of s.all_categories) filter.append(h("option", { value: c, text: categoryLabel(c) }));
+  filter.value = current;
 }
 
-async function saveSettings(e) {
-  e.preventDefault();
-  const msg = $("settings-msg");
-  setMsg(msg, "");
-  // Empty strings clear the optional fields.
-  const payload = {
-    name: $("set-name").value.trim(),
-    whatsapp_number: $("set-wa").value.trim(),
-    website_url: $("set-web").value.trim(),
-  };
-  await busy($("settings-btn"), async () => {
-    try {
-      state.store = await call(base, { method: "PATCH", json: payload });
-      renderStore();
-      setMsg(msg, "Settings saved.", "ok");
-    } catch (err) {
-      if (!handleAuthError(err)) setMsg(msg, err.message);
-    }
-  });
+async function refreshStore() {
+  try { state.store = await api(`${base}/admin/check`, { token: state.token }); paintStore(); } catch (e) { /* non-critical */ }
 }
-
-function copyLink() { copyText($("share-link").value, $("copy-link")); }
-
-// ---------- import ----------
-
-async function runImport(e) {
-  e.preventDefault();
-  const msg = $("import-msg");
-  setMsg(msg, "");
-  const url = $("imp-url").value.trim();
-  const limit = Math.max(1, Math.min(200, parseInt($("imp-limit").value, 10) || 20));
-  show($("import-status"), true);
-  await busy($("import-btn"), async () => {
-    try {
-      const r = await call(`${base}/import`, { method: "POST", json: { url, limit } });
-      setMsg(msg, `Found ${r.found} • Imported ${r.imported} • Already in your store ${r.skipped_existing} • Failed ${r.failed}`,
-        r.imported > 0 || r.found > 0 ? "ok" : "info");
-      await loadProducts();
-      refreshStoreInfo();
-    } catch (err) {
-      if (!handleAuthError(err)) setMsg(msg, err.message);
-    } finally {
-      show($("import-status"), false);
-    }
-  });
-}
-
-async function refreshStoreInfo() {
-  try { state.store = await call(`${base}/admin/check`); renderStore(); } catch (e) { /* non-critical */ }
-}
-
-// ---------- add product ----------
-
-const slots = createPhotoSlots({
-  container: $("photo-slots"), fileInput: $("p-files"), addButton: $("p-add-photos"), max: MAX_PHOTOS,
-  onNotice: (text) => setMsg($("product-msg"), text, "info"),
-});
-
-async function addProduct(e) {
-  e.preventDefault();
-  const msg = $("product-msg");
-  setMsg(msg, "");
-  if (slots.photos.length === 0) return setMsg(msg, "Please add at least one photo.");
-  const form = new FormData();
-  form.append("name", $("p-name").value.trim());
-  form.append("category", $("p-category").value);
-  const optional = { price: "p-price", currency: "p-currency", dimensions: "p-dimensions", product_url: "p-url", description: "p-desc" };
-  for (const [field, id] of Object.entries(optional)) {
-    const v = $(id).value.trim();
-    if (v) form.append(field, v);
-  }
-  slots.appendTo(form);
-  await busy($("product-btn"), async () => {
-    try {
-      const product = await call(`${base}/products`, { method: "POST", body: form });
-      setMsg(msg, `Added "${product.name}".`, "ok");
-      resetProductForm();
-      await loadProducts();
-      refreshStoreInfo();
-    } catch (err) {
-      if (!handleAuthError(err)) setMsg(msg, err.message);
-    }
-  });
-}
-
-function resetProductForm() {
-  for (const id of ["p-name", "p-price", "p-dimensions", "p-url", "p-desc"]) $(id).value = "";
-  $("p-currency").value = "INR";
-  slots.reset();
-}
-
-// ---------- product list ----------
 
 async function loadProducts() {
-  const msg = $("list-msg");
   try {
-    const products = await call(`${base}/products`);
-    renderProducts(products);
-    setMsg(msg, "");
+    state.products = await api(`${base}/products`);
   } catch (err) {
-    if (!handleAuthError(err)) setMsg(msg, err.message);
+    toast(err.message, "error");
   }
 }
 
-function renderProducts(products) {
-  const list = $("product-list");
+async function reloadAll() {
+  await Promise.all([loadProducts(), refreshStore()]);
+  paintCollection();
+  paintOverview();
+}
+
+// ---------- routing ----------
+
+function route() {
+  let name = location.hash.replace(/^#\/?/, "");
+  if (!VIEWS.includes(name)) name = "overview";
+  for (const el of document.querySelectorAll("[data-view]")) {
+    const on = el.dataset.view === name;
+    el.hidden = !on;
+    if (on) { el.classList.remove("fade-in"); void el.offsetWidth; el.classList.add("fade-in"); }
+  }
+  for (const a of document.querySelectorAll("[data-nav]")) {
+    if (a.dataset.nav === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  }
+  const active = document.querySelector(`[data-nav="${name}"]`);
+  if (active && active.scrollIntoView) active.scrollIntoView({ block: "nearest", inline: "center" });
+  build(name);
+  window.scrollTo({ top: 0 });
+}
+
+function build(name) {
+  if (name === "overview") paintOverview();
+  if (name === "collection") paintCollection();
+  if (state.built.has(name)) return;
+  if (name === "add") {
+    $("add-host").append(buildProductForm({
+      categories: state.store.all_categories, full: true, submitLabel: "Add to collection",
+      create: (fd) => call(`${base}/products`, { method: "POST", body: fd }),
+      onAdded: reloadAll,
+    }));
+  } else if (name === "import") {
+    $("import-host").append(buildImporter({
+      call, base, defaultUrl: state.store.website_url || "", idPrefix: "imp", onDone: reloadAll,
+    }));
+  } else if (name === "share") {
+    $("share-host").append(buildSharePanel({ slug, wide: true, idPrefix: "sh" }));
+  } else return;
+  state.built.add(name);
+}
+
+// ---------- overview ----------
+
+function paintOverview() {
+  const host = $("overview-body");
+  if (!host || $("app").hidden) return;
+  const products = state.products;
+  const cats = state.store.categories || {};
+  const catEntries = Object.entries(cats).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+  const photos = products.reduce((n, p) => n + p.images.length, 0);
+  $("ov-title").replaceChildren(state.store.name);
+  host.replaceChildren();
+
+  if (!products.length) {
+    host.append(h("div", { class: "setup-card" },
+      h("div", {},
+        h("p", { class: "eyebrow", text: "Getting started" }),
+        h("h3", { text: "Finish setting up your boutique" }),
+        h("p", { class: "small", text: "Add your first pieces so customers can try them on. It takes a few minutes." })),
+      h("a", { class: "btn btn-primary", href: `/onboard?store=${encodeURIComponent(slug)}`, text: "Continue setup" })));
+  }
+
+  const tile = (num, label) => h("div", { class: "stat" }, h("span", { class: "stat-num", text: String(num) }), h("span", { class: "eyebrow", text: label }));
+  host.append(h("div", { class: "stats" }, tile(products.length, "Pieces"), tile(catEntries.length, "Types"), tile(photos, "Photographs")));
+
+  if (catEntries.length) {
+    const max = catEntries[0][1];
+    const list = h("ul", { class: "bars" });
+    for (const [cat, n] of catEntries) {
+      list.append(h("li", {},
+        h("span", { class: "bar-name", text: categoryLabel(cat) }),
+        h("span", { class: "bar-track", "aria-hidden": "true" }, h("span", { style: `width:${Math.max(6, (n / max) * 100)}%` })),
+        h("span", { class: "bar-n", text: String(n) })));
+    }
+    host.append(h("div", { class: "block" }, h("p", { class: "eyebrow", text: "By type" }), list));
+  }
+
+  const action = (href, title, text) => h("a", { class: "action", href }, h("span", {}, h("strong", { text: title }), h("span", { class: "small", text })), icon("arrow", 20));
+  host.append(h("div", { class: "block" }, h("p", { class: "eyebrow", text: "Quick actions" }),
+    h("div", { class: "actions" },
+      action("#add", "Add a piece", "Photograph and describe a new piece"),
+      action("#import", "Import from website", "Bring your existing shop across"),
+      action("#share", "Share your boutique", "Link, QR code and WhatsApp message"))));
+}
+
+// ---------- collection ----------
+
+function paintCollection() {
+  const list = $("rows");
+  if (!list) return;
+  const q = state.q.trim().toLowerCase();
+  const items = state.products.filter((p) => (!state.filter || p.category === state.filter) && (!q || p.name.toLowerCase().includes(q)));
   list.replaceChildren();
-  $("product-count").textContent = String(products.length);
-  show($("list-empty"), products.length === 0);
-  show($("setup-banner"), products.length === 0);
-  for (const p of products) {
-    const thumb = p.images[0]
-      ? h("img", { src: p.images[0].url, alt: p.name, loading: "lazy" })
-      : h("div", { class: "thumb-item", "aria-hidden": "true" });
-    const del = h("button", { type: "button", class: "btn btn-sm btn-danger", text: "Delete", "aria-label": `Delete ${p.name}` });
-    del.addEventListener("click", () => deleteProduct(p, del));
-    list.append(h("div", { class: "product-row" },
-      thumb,
-      h("div", { class: "pr-main" },
-        h("div", { class: "pr-name", text: p.name }),
-        h("div", { class: "pr-meta" },
-          categorySelect(p),
-          h("span", { text: formatPrice(p, "No price") }),
-          h("span", { text: `${p.images.length} photo${p.images.length === 1 ? "" : "s"}` }),
-          h("span", { class: "badge", text: p.source || "manual" }))),
-      h("div", { class: "pr-actions" }, del)));
+  const total = state.products.length;
+  $("count").textContent = total ? `${items.length} of ${total} piece${total === 1 ? "" : "s"}` : "";
+  const empty = $("rows-empty");
+  show(empty, items.length === 0);
+  if (!items.length) {
+    empty.replaceChildren(total
+      ? h("p", { class: "small", text: "No pieces match your search." })
+      : h("div", {}, h("p", { class: "display-sm", text: "Your collection is empty" }),
+        h("p", { class: "small", text: "Add your first piece, or import your catalogue from your website." }),
+        h("div", { class: "empty-actions" }, h("a", { class: "btn btn-primary", href: "#add", text: "Add a piece" }), h("a", { class: "btn", href: "#import", text: "Import" }))));
   }
+  for (const p of items) list.append(row(p));
 }
 
-/** Inline category editor: change the select to save immediately. */
-function categorySelect(p) {
-  const sel = h("select", { class: "pr-cat", "aria-label": `Category for ${p.name}` });
+function row(p) {
+  const tick = savedTick();
+  const sel = h("select", { "aria-label": `Type of ${p.name}` });
   for (const c of state.store.all_categories) sel.append(h("option", { value: c, text: categoryLabel(c) }));
   sel.value = p.category;
   sel.addEventListener("change", async () => {
+    const previous = p.category;
     sel.disabled = true;
     try {
       await call(`${base}/products/${p.id}`, { method: "PATCH", json: { category: sel.value } });
       p.category = sel.value;
-      setMsg($("list-msg"), `Updated "${p.name}" to ${categoryLabel(sel.value).toLowerCase()}.`, "ok");
-      refreshStoreInfo();
+      tick.flash();
+      refreshStore().then(() => { if (!location.hash || location.hash === "#overview") paintOverview(); });
     } catch (err) {
-      sel.value = p.category;
-      if (!handleAuthError(err)) setMsg($("list-msg"), err.message);
-    } finally {
-      sel.disabled = false;
-    }
+      sel.value = previous;
+      toast(err.message, "error");
+    } finally { sel.disabled = false; }
   });
-  return sel;
-}
 
-async function deleteProduct(p, button) {
-  if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
-  const msg = $("list-msg");
-  await busy(button, async () => {
+  const del = h("button", { type: "button", class: "icon-btn", "aria-label": `Delete ${p.name}` }, icon("trash", 18));
+  del.addEventListener("click", async () => {
+    if (!await confirmDialog({ title: "Delete this piece?", body: `${p.name} and its photographs will be permanently removed.`, confirmLabel: "Delete", danger: true })) return;
     try {
       await call(`${base}/products/${p.id}`, { method: "DELETE" });
-      await loadProducts();
-      refreshStoreInfo();
-    } catch (err) {
-      if (!handleAuthError(err)) setMsg(msg, err.message);
-    }
+      toast("Piece deleted");
+      await reloadAll();
+    } catch (err) { toast(err.message, "error"); }
   });
+
+  const img = p.images[0];
+  const n = p.images.length;
+  return h("li", { class: "row" },
+    h("div", { class: "well row-thumb" }, img ? h("img", { src: img.url, alt: "", loading: "lazy" }) : null),
+    h("div", { class: "row-main" },
+      h("p", { class: "row-name", text: p.name }),
+      h("p", { class: "row-meta" }, h("span", { class: `badge${p.source === "import" ? " badge-gold" : ""}`, text: sourceLabel(p.source) }), h("span", { class: "small", text: `${n} photograph${n === 1 ? "" : "s"}` }))),
+    h("div", { class: "row-type" }, sel, tick.el),
+    h("p", { class: "row-price", text: formatPrice(p, "No price") }),
+    del);
+}
+
+// ---------- settings ----------
+
+async function saveSettings(e) {
+  e.preventDefault();
+  const err = $("settings-error");
+  say(err, "");
+  const name = $("set-name").value.trim();
+  if (!name) return say(err, "Please give your boutique a name.");
+  let web = $("set-web").value.trim();
+  if (web && !/^https?:\/\//i.test(web)) web = `https://${web}`;
+  const btn = $("settings-btn");
+  btn.classList.add("is-busy"); btn.disabled = true;
+  try {
+    state.store = await call(base, { method: "PATCH", json: { name, whatsapp_number: $("set-wa").value.trim(), website_url: web } });
+    paintStore();
+    toast("Settings saved");
+  } catch (ex) { say(err, ex.message); } finally { btn.classList.remove("is-busy"); btn.disabled = false; }
 }
 
 // ---------- init ----------
 
-function wire() {
+async function init() {
   $("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const token = $("token").value.trim();
-    if (!token) return setMsg($("login-error"), "Please enter your admin token.");
-    setMsg($("login-error"), "");
-    await busy($("login-btn"), async () => {
-      try { await login(token); }
-      catch (err) { state.token = ""; setMsg($("login-error"), err.unauthorized ? "That token isn't right. Please check and try again." : err.message); }
-    });
+    if (!token) return say($("login-error"), "Please enter your studio key.");
+    say($("login-error"), "");
+    const btn = $("login-btn");
+    btn.classList.add("is-busy"); btn.disabled = true;
+    try { await login(token); }
+    catch (err) { state.token = ""; say($("login-error"), err.unauthorized ? "That key isn't right. Please check it and try again." : err.message); }
+    finally { btn.classList.remove("is-busy"); btn.disabled = false; }
   });
-  $("logout").addEventListener("click", logout);
+  $("logout").addEventListener("click", () => signedOut(""));
   $("settings-form").addEventListener("submit", saveSettings);
-  $("copy-link").addEventListener("click", copyLink);
-  $("share-link").addEventListener("focus", (e) => e.target.select());
-  $("import-form").addEventListener("submit", runImport);
-  $("product-form").addEventListener("submit", addProduct);
-    }
+  $("q").addEventListener("input", (e) => { state.q = e.target.value; paintCollection(); });
+  $("filter").addEventListener("change", (e) => { state.filter = e.target.value; paintCollection(); });
+  window.addEventListener("hashchange", route);
 
-async function init() {
-  wire();
-  $("login-store").textContent = `Enter your admin token to manage "${slug}".`;
-  const saved = storageGetToken();
+  // Show the boutique's name on the sign-in screen.
+  api(base).then((s) => {
+    $("login-brand").textContent = s.name;
+    $("login-brand").setAttribute("href", `/s/${encodeURIComponent(slug)}`);
+    document.title = `${s.name} · Studio`;
+  }).catch((err) => {
+    if (err.status === 404) say($("login-error"), "We could not find a boutique at this address.");
+  });
+
+  const saved = storageGet(adminTokenKey(slug));
   if (!saved) return showLogin("");
   try { await login(saved); }
-  catch (err) { state.token = ""; showLogin(err.unauthorized ? "Please log in again." : err.message); }
+  catch (err) { state.token = ""; showLogin(err.unauthorized ? "Please enter your key again." : err.message); }
 }
 
 init();
