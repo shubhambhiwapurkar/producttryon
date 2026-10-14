@@ -161,7 +161,8 @@ function renderGrid() {
     open.addEventListener("click", () => openProduct(p));
     const tryBtn = h("button", { type: "button", class: "pcard-try", "aria-label": `Try on ${p.name}`, text: "Try it on" });
     tryBtn.addEventListener("click", () => openProduct(p, { tryNow: true }));
-    grid.append(h("article", { class: "pcard fade-in", style: `animation-delay:${Math.min(i, 8) * 50}ms` }, open, tryBtn));
+    grid.append(h("article", { class: "pcard fade-in", style: `animation-delay:${Math.min(i, 8) * 50}ms` },
+      open, h("div", { class: "pcard-tryzone" }, tryBtn)));
   });
   $("grid-status").textContent = `${products.length} piece${products.length === 1 ? "" : "s"} shown`;
 }
@@ -454,7 +455,10 @@ function showResult(job) {
   const handle = compare.querySelector(".handle");
   if (handle) handle.textContent = "‹ ›";
   const after = compare.querySelector(":scope > img");
-  const fit = () => { if (after.naturalWidth) compare.style.setProperty("--ar", `${after.naturalWidth} / ${after.naturalHeight}`); };
+  const fit = () => { if (after.naturalWidth) {
+    compare.style.setProperty("--ar", `${after.naturalWidth} / ${after.naturalHeight}`);
+    compare.style.setProperty("--ar-num", String(after.naturalWidth / after.naturalHeight));
+  } };
   if (after.complete) fit(); else after.addEventListener("load", fit);
   $("compare-slot").replaceChildren(compare);
 
