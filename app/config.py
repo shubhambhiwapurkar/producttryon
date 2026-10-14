@@ -1,0 +1,31 @@
+import os
+from pathlib import Path
+
+DATA_DIR = Path(os.environ.get("DATA_DIR", "data"))
+MEDIA_DIR = DATA_DIR / "media"
+DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DATA_DIR / 'tryon.db'}")
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_IMAGE_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-3-pro-image-preview")
+RENDERER = os.environ.get("TRYON_RENDERER") or ("gemini" if GEMINI_API_KEY else "mock")
+
+PLATFORM_ADMIN_KEY = os.environ.get("PLATFORM_ADMIN_KEY", "")
+RETENTION_DAYS = int(os.environ.get("RETENTION_DAYS", "7"))
+
+MAX_UPLOAD_BYTES = 15 * 1024 * 1024
+MAX_PRODUCT_IMAGES = 5
+# Longest side, in pixels, of images sent to the renderer
+RENDER_MAX_SIDE = 1536
+
+CATEGORIES = [
+    "necklace",
+    "earrings",
+    "ring",
+    "bracelet",
+    "bangle",
+    "pendant",
+    "nose_pin",
+    "maang_tikka",
+    "anklet",
+    "other",
+]

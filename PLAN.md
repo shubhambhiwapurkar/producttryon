@@ -45,6 +45,12 @@ ring, bangle/bracelet, nose pin, maang tikka, mangalsutra, and so on. Clothing
 later plugs in as another renderer (FASHN / Kling try-on APIs) behind the same
 interface.
 
+### Where products come from
+1. **Jeweller's website import:** Shopify, WooCommerce, or any page with schema.org Product data. One click in the admin page.
+2. **Admin upload:** name, type, price, size and 3–5 angle photos.
+3. **Customer's own piece:** on the "Try your own piece" tab the customer uploads photos of any jewellery, picks its type, and tries it on. These photos are private to that try-on and are not added to the catalogue.
+4. **Open datasets for the demo:** until there is a client, load an MIT or CC-BY jewellery image set (see the README).
+
 ---
 
 ## 2. Delivery channel
@@ -117,7 +123,7 @@ example 500, 2,000 or 10,000 try-ons) with overage charges.
 
 | Phase | Scope | Time |
 |---|---|---|
-| 0. Spike | Script: selfie plus product angles → Gemini → result. Test on 30 real SKUs, measure fidelity | 3–5 days |
+| 0. Spike | **Done:** API, customer and admin pages, website import, own-piece try-on, Gemini and mock renderers. Next: test on 30 real SKUs and measure fidelity | 3–5 days |
 | 1. MVP | Admin upload, mobile web try-on, mode A, QA check, one pilot jeweller | 3–4 weeks |
 | 2. WhatsApp | Cloud API bot, catalog list messages, lead capture to the jeweller | +2 weeks |
 | 3. Fidelity | Mode B composite/hybrid for necklaces and earrings, size-accurate scaling | +3 weeks |
