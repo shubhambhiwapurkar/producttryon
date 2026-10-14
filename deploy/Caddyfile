@@ -1,0 +1,8 @@
+{$DOMAIN} {
+	encode gzip
+	# Selfie + up to 5 product photos at 15 MB each.
+	request_body {
+		max_size 100MB
+	}
+	reverse_proxy app:8000
+}

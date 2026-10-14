@@ -143,6 +143,11 @@ The app runs as one instance, because try-ons run in-process and the database
 is SQLite. To scale out, move to Postgres (`DATABASE_URL`), S3/R2 storage and a
 job queue (see PLAN.md).
 
+**Cheaper options and GitHub Actions:** see [deploy/README.md](deploy/README.md).
+It covers Render free for demos, an Oracle Cloud Always Free or Hetzner server
+with automatic HTTPS (`docker-compose.yml` + Caddy, one setup script), and
+automatic deploys from GitHub Actions after the tests pass.
+
 Other hosts work the same way with the `Dockerfile`:
 - **Railway:** New Project → Deploy from GitHub, then add a volume at `/data`.
 - **Fly.io:** `fly launch`, then add a volume at `/data`. Its Mumbai region

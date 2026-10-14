@@ -1,0 +1,30 @@
+# Single-server deployment (Oracle Always Free, Hetzner, any VPS with Docker).
+# Caddy terminates HTTPS with a free Let's Encrypt certificate for DOMAIN.
+# Settings come from .env (copy .env.example). See deploy/README.md.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - ./data:/data
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env, e.g. tryon.yourbrand.com or <ip>.sslip.io}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
